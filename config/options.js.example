@@ -1,0 +1,12 @@
+module.exports = {
+    viewers: [
+        {
+            name: "PintAndPie",
+            role: "master"
+        },
+        {
+            name: "PintAndPie",
+            role: "player"
+        }
+    ]
+};
