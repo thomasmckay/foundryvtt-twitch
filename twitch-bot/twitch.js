@@ -51,4 +51,3 @@ nightmare
     .catch(error => {
         console.error('ERROR (nightmare startup):', error)
     });
-
