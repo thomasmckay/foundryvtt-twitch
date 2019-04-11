@@ -1,0 +1,39 @@
+
+var options = {
+    options: {
+        debug: true
+    },
+    connection: {
+        reconnect: true
+    },
+    twitch: {
+        # Twitch user name:
+        # https://www.twitch.tv/<user>
+        #
+        username: "<user>",
+        # Twitch oauth token generated at https://twitchapps.com/tmi/
+        #
+        password: "oauth:<oauth>",
+        # One or more channels to monitor chat. Most commonly the
+        # same as the 'username'
+        #
+        channels: ["#<channel>"]
+    },
+    roll20: {
+        username: "<user>",
+        password: "<password">,
+        # The Roll20 ID may be found in the URL of your game:
+        # https://app.roll20.net/campaigns/details/<roll20 id>/torchbearer
+        campaign: "<roll20 id>"
+    },
+    players: [
+        {
+            name: "<twitch user>",
+            role: "<master|player|chat>"
+        }
+    ]
+};
+
+# Required for external reference, do not change
+#
+module.exports.config = config;

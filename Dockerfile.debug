@@ -1,0 +1,15 @@
+FROM quay.io/thomasmckay/roll20-twitch:latest
+LABEL maintainer thomasmckay@redhat.com
+
+ENV LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8
+
+WORKDIR /roll20-twitch
+
+COPY example.js .
+COPY roll20.js .
+
+ENTRYPOINT ["/roll20-twitch/entrypoint.sh"]
+CMD ["start"]
+
+#USER 1001
