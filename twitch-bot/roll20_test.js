@@ -14,4 +14,6 @@ var self = false,
     message = "!roll20 /roll d20",
     nightmare = false;
 
+roll20.processMessage(false, false, userstate, "!roll20 admin abc def");
 roll20.processMessage(nightmare, self, userstate, message);
+

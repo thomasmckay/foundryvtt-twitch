@@ -1,4 +1,6 @@
 var Roll20 = (function () {
+    var ROLL20_COMMANDS = {};
+
     var _options = {};
 
     var _viewers = new Array();
@@ -23,12 +25,20 @@ var Roll20 = (function () {
     var _processMessage = (nightmare, self, userstate, message) => {
         var isPlayer = _isPlayer(userstate["display-name"]),
             isMaster = _isMaster(userstate["display-name"]);
-        var command = undefined;
+        var roll20Command,
+            command = undefined;
 
         var tokens = message.split(" ");
         if (tokens[0] != "!roll20") {
             return;
         }
+
+        roll20Command = ROLL20_COMMANDS[tokens[1]];
+        if (roll20Command === undefined) {
+            console.log("Unrecognized command: " + tokens[1]);
+            return;
+        }
+        command = roll20Command.run(self, userstate, message);
 
         if ((self || isMaster) && tokens[1] === "reload-options") {
             _reloadOptions();
@@ -55,7 +65,13 @@ var Roll20 = (function () {
         }
     }
 
+    var registerCommands = () => {
+        var Roll20AdminCommand = require('./roll20-admin.js');
+        ROLL20_COMMANDS["admin"] = new Roll20AdminCommand();
+    }
+
     return {
+        registerCommands: registerCommands,
         options: _options,
         reloadOptions: _reloadOptions,
         processMessage: _processMessage
@@ -63,6 +79,7 @@ var Roll20 = (function () {
 }());
 
 module.exports = function () {
+    Roll20.registerCommands();
     this.options = Roll20.options;
     this.reloadOptions = Roll20.reloadOptions;
     this.processMessage = Roll20.processMessage;
