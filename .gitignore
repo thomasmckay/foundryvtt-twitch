@@ -1,2 +1,2 @@
-config/*.js
-node_modules
+roll20bot/config/*.js
+roll20bot/node_modules
