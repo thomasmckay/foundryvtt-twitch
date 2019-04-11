@@ -1,2 +1,2 @@
-roll20bot/config/*.js
-roll20bot/node_modules
+twitch-bot/config/*.js
+twitch-bot/node_modules
