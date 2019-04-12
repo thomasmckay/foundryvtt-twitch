@@ -2,6 +2,7 @@ BUILD_DIR=build
 
 ROLL20_FILES = \
 	twitch-ping.js \
+	twitch-query.js \
 	twitch-roll.js \
 	twitch.js
 
@@ -9,22 +10,24 @@ ROLL20_FILES = \
 
 all: build
 
-build: check-env $(BUILD_DIR)/build.js upload
+build: $(BUILD_DIR)/build.js upload
 
 $(BUILD_DIR)/build.js: $(ROLL20_FILES)
 	mkdir -p $(@D)
 	$(RM) $@
 	cat $^ >> $@
 
-check-env:
+upload:
+	cd build && \
+	xclip -sel c < build.js
+
+brokenupload:
 ifndef GAME
 	$(error env var GAME from https://app.roll20.net/campaigns/scripts/XXXXXXX)
 endif
 ifndef SCRIPT
 	$(error env var SCRIPT from inspect tab of script in browser <a data-toggle="tab" href="#script-XXXXXX" >)
 endif
-
-upload:
 	cd build && \
 	rm -f roll20*.cookies && \
 	curl \

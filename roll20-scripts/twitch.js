@@ -88,9 +88,15 @@ var Twitch = (function () {
     }
 
     function handleTwitchMessage(tokens, msg) {
-        var linkid = tokens[1];
-        var command = tokens[2];
-        var args = tokens.slice(3);
+        var linkid = "",
+            start = 1;
+
+        if (tokens[1].charAt(0) === "[") {
+            linkid = tokens[1];
+            start = 2;
+        }
+        var command = tokens[start];
+        var args = tokens.slice(start + 1);
 
         if (command === undefined) {
             showHelp(msg.who);
@@ -118,8 +124,9 @@ var Twitch = (function () {
 
     function registerCommands() {
         /* eslint-disable no-undef */
-        TWITCH_COMMANDS["roll"] = TwitchRollCommand;
         TWITCH_COMMANDS["ping"] = TwitchPingCommand;
+        TWITCH_COMMANDS["query"] = TwitchQueryCommand;
+        TWITCH_COMMANDS["roll"] = TwitchRollCommand;
         /* eslint-enable no-undef */
         if ((typeof(Shell) != "undefined") && (Shell) && (Shell.registerCommand)) {
             Shell.registerCommand(TWITCH_COMMAND, "!twitch command", "Twitch command",
