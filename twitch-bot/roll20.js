@@ -38,13 +38,14 @@ var Roll20 = (function () {
             console.log("Unrecognized command: " + tokens[1]);
             return;
         }
-        command = roll20Command.run(self, userstate, message);
+        command = roll20Command.run(self, userstate, message.substring(8));
 
         if ((self || isMaster) && tokens[1] === "reload-options") {
             _reloadOptions();
             return;
         }
 
+        /*
         if ((isPlayer || isMaster) && tokens[1] === "/roll") {
             command = message.substring(8);
         } else if ((isPlayer || isMaster) && tokens[1] === "ping") {
@@ -52,6 +53,7 @@ var Roll20 = (function () {
         } else {
             return;
         }
+        */
 
         if (nightmare && command) {
             nightmare
@@ -68,6 +70,11 @@ var Roll20 = (function () {
     var registerCommands = () => {
         var Roll20AdminCommand = require('./roll20-admin.js');
         ROLL20_COMMANDS["admin"] = new Roll20AdminCommand();
+        var Roll20RollCommand = require('./roll20-roll.js');
+        ROLL20_COMMANDS["roll"] = new Roll20RollCommand();
+        ROLL20_COMMANDS["/roll"] = ROLL20_COMMANDS["roll"];
+        var Roll20PingCommand = require('./roll20-ping.js');
+        ROLL20_COMMANDS["ping"] = new Roll20PingCommand();
     }
 
     return {

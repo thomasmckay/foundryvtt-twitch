@@ -15,5 +15,8 @@ var self = false,
     nightmare = false;
 
 roll20.processMessage(false, false, userstate, "!roll20 admin abc def");
-roll20.processMessage(nightmare, self, userstate, message);
+roll20.processMessage(false, false, userstate, "!roll20 /roll d20");
+roll20.processMessage(false, false, userstate, "!roll20 roll d20");
+roll20.processMessage(false, false, userstate, "!roll20 ping 111 222");
+
 
