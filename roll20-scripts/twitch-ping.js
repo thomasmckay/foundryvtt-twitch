@@ -1,5 +1,6 @@
 /* global Twitch:true */
 /* exported TwitchPingCommand */
+// ?????
 
 var TwitchPingCommand = {
     run: function(msg, linkid, args) {

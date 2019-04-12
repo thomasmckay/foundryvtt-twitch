@@ -33,8 +33,9 @@ COPY package.json .
 COPY package-lock.json .
 COPY twitch.js .
 COPY roll20.js .
+COPY roll20-admin.js .
 COPY roll20-ping.js .
-COPY roll20-ping.js .
+COPY roll20-roll.js .
 COPY entrypoint.sh .
 
 RUN scl enable rh-nodejs8 "\
