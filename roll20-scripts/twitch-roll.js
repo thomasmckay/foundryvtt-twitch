@@ -11,9 +11,18 @@ var TwitchRollCommand = {
         }
 
         if (dice === undefined) {
-            Twitch.write("Usage: $id roll $dice", msg.who, "", "twitch roll");
+            Twitch.rawWrite("Usage: " + this.usage(true), msg.who, "", "twitch roll");
             return;
         }
         Twitch.linkWrite("/roll " + dice, linkid, "", "twitch roll");
+    },
+
+    usage: function(detailed) {
+        var message = "<b>roll</b> [$id] roll $dice\n";
+        if (detailed) {
+            message += "    $id: Unique ID for return result to twitch\n";
+            message += "    $dice: Dice to roll (eg. d20, 2d10, d6+2)\n";
+        }
+        return(message);
     }
 };

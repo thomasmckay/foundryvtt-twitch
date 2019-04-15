@@ -26,9 +26,18 @@ var TwitchPingCommand = {
         }
 
         if (location === undefined && x === undefined && y === undefined) {
-            Twitch.write("Usage: ping [ $location | $x $y ]", msg.who, "", "twitch ping");
+            Twitch.rawWrite("Usage: " + this.usage(true), msg.who, "", "twitch ping");
             return;
         }
         sendPing(x, y, Campaign().get('playerpageid'));
+    },
+
+    usage: function(detailed) {
+        var message = "<b>ping</b> [ $name | $x $y ]\n";
+        if (detailed) {
+            message += "    $name: Object name to ping, case insensitive\n";
+            message += "    $x $y: X,Y coordinates to ping\n";
+        }
+        return(message);
     }
 };

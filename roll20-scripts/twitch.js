@@ -82,16 +82,18 @@ var Twitch = (function () {
     }
 
     function showHelp(who) {
-        var helpMsg = "";
-        helpMsg += "TODO: print out allowed commands";
-        write(helpMsg, who, "", "Twitch");
+        var helpMsg = "<b>!twitch commands</b>:\n";
+        _.each(TWITCH_COMMANDS, function (command) {
+            helpMsg += command.usage(false);
+        });
+        rawWrite(helpMsg, who, "", "Twitch");
     }
 
     function handleTwitchMessage(tokens, msg) {
         var linkid = "",
             start = 1;
 
-        if (tokens[1].charAt(0) === "[") {
+        if (tokens[1] && tokens[1].charAt(0) === "[") {
             linkid = tokens[1];
             start = 2;
         }
@@ -103,7 +105,10 @@ var Twitch = (function () {
             return;
         }
 
-        if (TWITCH_COMMANDS[command] === undefined) {
+        if (command === "help") {
+            showHelp(msg.who);
+            return;
+        } else if (TWITCH_COMMANDS[command] === undefined) {
             write("Unrecognized command '" + command + "'", msg.who, "", "Twitch");
             showHelp(msg.who);
             return;
