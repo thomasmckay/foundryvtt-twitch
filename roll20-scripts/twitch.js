@@ -129,9 +129,11 @@ var Twitch = (function () {
 
     function registerCommands() {
         /* eslint-disable no-undef */
+        TWITCH_COMMANDS["moveto"] = TwitchMovetoCommand;
         TWITCH_COMMANDS["ping"] = TwitchPingCommand;
         TWITCH_COMMANDS["query"] = TwitchQueryCommand;
         TWITCH_COMMANDS["roll"] = TwitchRollCommand;
+        TWITCH_COMMANDS["say"] = TwitchSayCommand;
         /* eslint-enable no-undef */
         if ((typeof(Shell) != "undefined") && (Shell) && (Shell.registerCommand)) {
             Shell.registerCommand(TWITCH_COMMAND, "!twitch command", "Twitch command",

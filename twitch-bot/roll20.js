@@ -75,6 +75,10 @@ var Roll20 = (function () {
         ROLL20_COMMANDS["/roll"] = ROLL20_COMMANDS["roll"];
         var Roll20PingCommand = require('./roll20-ping.js');
         ROLL20_COMMANDS["ping"] = new Roll20PingCommand();
+        var Roll20MovetoCommand = require('./roll20-moveto.js');
+        ROLL20_COMMANDS["moveto"] = new Roll20MovetoCommand();
+        var Roll20SayCommand = require('./roll20-say.js');
+        ROLL20_COMMANDS["say"] = new Roll20SayCommand();
     }
 
     return {

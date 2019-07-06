@@ -1,7 +1,7 @@
 /* global Twitch:true */
-/* exported TwitchPingCommand */
+/* exported TwitchMovetoCommand */
 
-var TwitchPingCommand = {
+var TwitchMovetoCommand = {
     run: function(msg, linkid, args) {
         var location, x, y;
         if (args.length === 0) {
@@ -26,17 +26,17 @@ var TwitchPingCommand = {
         }
 
         if (location === undefined && x === undefined && y === undefined) {
-            Twitch.rawWrite("Usage: " + this.usage(true), msg.who, "", "twitch ping");
+            Twitch.rawWrite("Usage: " + this.usage(true), msg.who, "", "twitch moveto");
             return;
         }
-        sendPing(x, y, Campaign().get('playerpageid'), undefined, false);
+        sendPing(x, y, Campaign().get('playerpageid'), undefined, true);
     },
 
     usage: function(detailed) {
-        var message = "<b>ping</b> [ $name | $x $y ]\n";
+        var message = "<b>moveto</b> [ $name | $x $y ]\n";
         if (detailed) {
-            message += "    $name: Object name to ping, case insensitive\n";
-            message += "    $x $y: X,Y coordinates to ping\n";
+            message += "    $name: Object name to move view to, case insensitive\n";
+            message += "    $x $y: X,Y coordinates to move view to\n";
         }
         return(message);
     }
