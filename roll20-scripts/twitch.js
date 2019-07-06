@@ -129,6 +129,7 @@ var Twitch = (function () {
 
     function registerCommands() {
         /* eslint-disable no-undef */
+        TWITCH_COMMANDS["admin"] = TwitchAdminCommand;
         TWITCH_COMMANDS["moveto"] = TwitchMovetoCommand;
         TWITCH_COMMANDS["ping"] = TwitchPingCommand;
         TWITCH_COMMANDS["query"] = TwitchQueryCommand;

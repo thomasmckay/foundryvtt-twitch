@@ -1,6 +1,6 @@
 var Roll20AdminCommand = {
     run: function(self, userstate, message) {
-        return("ADMIN COMMAND");
+        return("!twitch [#####] " + message);
     }
 };
 

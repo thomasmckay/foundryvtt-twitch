@@ -1,6 +1,7 @@
 BUILD_DIR=build
 
 ROLL20_FILES = \
+	twitch-admin.js \
 	twitch-moveto.js \
 	twitch-ping.js \
 	twitch-query.js \
