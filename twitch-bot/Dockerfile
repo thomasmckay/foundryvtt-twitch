@@ -31,8 +31,13 @@ RUN INSTALL_PKGS="\
 COPY LICENSE .
 COPY package.json .
 COPY package-lock.json .
-COPY example.js .
+COPY twitch.js .
 COPY roll20.js .
+COPY roll20-admin.js .
+COPY roll20-ping.js .
+COPY roll20-moveto.js .
+COPY roll20-roll.js .
+COPY roll20-say.js .
 COPY entrypoint.sh .
 
 RUN scl enable rh-nodejs8 "\

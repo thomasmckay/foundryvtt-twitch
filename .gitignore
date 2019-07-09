@@ -1,2 +1,4 @@
-config/*.js
-node_modules
+twitch-bot/config/*.js
+twitch-bot/node_modules
+roll20-scripts/build
+roll20-scripts/login.txt

@@ -9,13 +9,14 @@
     "eslint-config-airbnb": "^16.0.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-jsx-a11y": "^6.0.2",
+    "jslint": "^0.12.1",
     "nightmare": "^3.0.1",
     "prop-types": "*",
     "tmi.js": "^1.2.1",
     "ws": "^3.2.0"
   },
   "scripts": {
-    "start": "node example.js",
+    "start": "node twitch.js",
     "test": "node roll20_test.js"
   }
 }

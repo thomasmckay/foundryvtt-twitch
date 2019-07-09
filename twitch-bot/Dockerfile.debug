@@ -6,8 +6,10 @@ ENV LC_ALL=en_US.UTF-8 \
 
 WORKDIR /roll20-twitch
 
-COPY example.js .
+COPY twitch.js .
 COPY roll20.js .
+COPY roll20-ping.js .
+COPY roll20-roll.js .
 
 ENTRYPOINT ["/roll20-twitch/entrypoint.sh"]
 CMD ["start"]
