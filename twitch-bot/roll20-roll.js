@@ -1,11 +1,9 @@
 var Roll20RollCommand = {
     run: function(self, userstate, message) {
-        var slashChar = '';
-
-        if (message.charAt(0) !== '/') {
-            slashChar = '/';
+        if (message.charAt(0) === '/') {
+            message = message.substring(1);
         }
-        return(slashChar + message);
+        return("!twitch [#####] " + message);
     }
 };
 

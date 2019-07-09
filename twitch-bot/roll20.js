@@ -55,6 +55,7 @@ var Roll20 = (function () {
         }
         */
 
+        console.log(command);
         if (nightmare && command) {
             nightmare
                 .insert('#textchat-input > textarea.ui-autocomplete-input', command + '\n')

@@ -48,7 +48,8 @@ var TwitchAdminCommand = {
                 _characterid: twitch.id,
                 name: username
             })[0];
-            result = this.checkPermission(msg, twitch, username, character, command);
+            allowed = this.checkPermission(msg, twitch, username, character, command);
+            //TODO: output nice message
             Twitch.rawWrite("DEBUG: allowed=" + result, msg.who, "", "twitch admin");
         } else {
             Twitch.rawWrite("Error: Unknown admin command '" + args[0] + "'", msg.who, "", "twitch admin");
@@ -66,12 +67,32 @@ var TwitchAdminCommand = {
         return message;
     },
 
+    getTwitchCharacter: function (msg) {
+        var objects = findObjs({
+            _type: "character",
+        });
+        twitch = _.find(objects, function (obj) {
+            return obj.get("name") == "Twitch Chat";
+        });
+        if (twitch === undefined) {
+            Twitch.rawWrite("Error: 'Twitch Chat' character not found", msg.who, "", "twitch admin");
+            return;
+        }
+
+        return twitch;
+    },
+
     checkPermission: function (msg, twitch, username, character, command) {
         var userPermissions = findObjs({
             _type: "ability",
             _characterid: twitch.id,
             name: username
         })[0];
+        if (userPermissions === undefined) {
+            Twitch.rawWrite("DEBUG: username=" + username, msg.who, "", "twitch admin");
+            return false;
+        }
+
         var permissions = this.getPermissions(userPermissions.get("action"));
 
         // Check for specific user under username

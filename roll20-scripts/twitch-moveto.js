@@ -8,6 +8,14 @@ var TwitchMovetoCommand = {
             location = undefined;
         } else if (args.length === 1) {
             var name = args[0].toLowerCase();
+
+            var allowed = TwitchAdminCommand.checkPermission(msg, TwitchAdminCommand.getTwitchCharacter(msg),
+                                                             msg.who, name, "moveto");
+            if (!allowed) {
+                Twitch.rawWrite("Permission Denied", msg.who, "", "twitch moveto");
+                return;
+            }
+
             var object,
                 objects = findObjs({
                     _pageid: Campaign().get("playerpageid"),

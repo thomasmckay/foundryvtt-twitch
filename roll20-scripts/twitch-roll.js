@@ -4,6 +4,31 @@
 var TwitchRollCommand = {
     run: function(msg, linkid, args) {
         var dice;
+        var xargs;
+
+        try {
+            xargs = Twitch.parse({
+                "--id": String,
+                "--name": String,
+                "-n": "--name"
+            }, options = {
+                argv: args,
+                permissive: true
+            });
+        } catch (e) {
+            Twitch.rawWrite("INTERNAL ERROR: Argument parsing failed", msg.who, "", "twitch roll");
+            return;
+        }
+        log(xargs);
+        return;
+
+        var allowed = TwitchAdminCommand.checkPermission(msg, TwitchAdminCommand.getTwitchCharacter(msg),
+                                                         msg.who, "All", "moveto");
+        if (!allowed) {
+            Twitch.rawWrite("Permission Denied", msg.who, "", "twitch roll");
+            return;
+        }
+
         if (args.length === 0) {
             dice = undefined;
         } else if (args.length === 1) {
