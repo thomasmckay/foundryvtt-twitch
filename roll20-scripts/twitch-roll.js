@@ -24,8 +24,16 @@ var TwitchRollCommand = {
         }
 
         character = args["--name"];
+        var characterid = undefined;
         if (!character) {
             character = "None";
+        } else {
+            var objects = findObjs({
+                _type: "character",
+            });
+            characterid = _.find(objects, function (obj) {
+                return obj.get("name").toLowerCase().startsWith(character.toLowerCase());
+            });
         }
         var allowed = TwitchAdminCommand.checkPermission(msg, TwitchAdminCommand.getTwitchCharacter(msg),
                                                          msg.who, character, "roll");
@@ -35,7 +43,12 @@ var TwitchRollCommand = {
         }
 
         dice = args["_"][0];
-        Twitch.linkWrite("/roll " + dice, linkid, "", "twitch roll");
+        if (character === "None") {
+            character = msg.who;
+        } else if (characterid !== undefined) {
+            character = "character|" + characterid.id;
+        }
+        Twitch.write("/roll " + dice, linkid, {use3d: true}, character);
     },
 
     usage: function(detailed) {

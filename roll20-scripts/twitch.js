@@ -29,7 +29,7 @@ var Twitch = (function () {
     }
 
     function rawWrite(s, who, style, from) {
-        sendChat(from, s.replace(/\n/g, "<br>"));
+        sendChat(from, s.replace(/\n/g, "<br>"), undefined, style);
     }
 
     function write(s, who, style, from) {
