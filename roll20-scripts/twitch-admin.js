@@ -83,6 +83,9 @@ var TwitchAdminCommand = {
     },
 
     checkPermission: function (msg, twitch, username, character, command) {
+        if (username.endsWith(" (GM)")) {
+            username = username.substring(0, username.length - 5);
+        }
         var userPermissions = findObjs({
             _type: "ability",
             _characterid: twitch.id,

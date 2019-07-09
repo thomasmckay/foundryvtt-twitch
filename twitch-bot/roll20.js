@@ -45,16 +45,6 @@ var Roll20 = (function () {
             return;
         }
 
-        /*
-        if ((isPlayer || isMaster) && tokens[1] === "/roll") {
-            command = message.substring(8);
-        } else if ((isPlayer || isMaster) && tokens[1] === "ping") {
-            command = "!twitch [#####] " + message.substring(8);
-        } else {
-            return;
-        }
-        */
-
         console.log(command);
         if (nightmare && command) {
             nightmare
