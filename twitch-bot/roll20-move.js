@@ -1,13 +1,13 @@
-var _Roll20PingCommand = {
+var _Roll20MoveCommand = {
     run: function(self, userstate, message) {
         try {
-            args = TwitchPingCommand.parseArgs(message.split(" "));
+            args = TwitchMoveCommand.parseArgs(message.split(" "));
         } catch (e) {
             console.log("ERROR 'ping' argument parsing failed: " + e);
             return undefined;
         }
         if (args["--help"]) {
-            var usage = TwitchPingCommand.usage(true, " // ");
+            var usage = TwitchMoveCommand.usage(true, " // ");
             console.log(usage);
             client.say(config.twitch.channels[0], "@" + userstate.username + " " + usage);
             return undefined;
@@ -18,8 +18,8 @@ var _Roll20PingCommand = {
 };
 
 
-var Roll20PingCommand = (function () {
+var Roll20MoveCommand = (function () {
     return {
-        run: _Roll20PingCommand.run
-    }
+        run: _Roll20MoveCommand.run
+    };
 }());

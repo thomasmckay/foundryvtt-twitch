@@ -22,9 +22,9 @@ var Twitch = (function () {
         return;
     }
 
-    function linkWrite(s, linkid, style, from) {
+    function linkWrite(s, params, style, from) {
         sendChat(from, s.replace(/\n/g, "<br>"), function (ops) {
-            sendChat(from, linkid + ops[0]["content"] + linkid);
+            sendChat(from, params["linkid"] + ops[0]["content"] + params["linkid"]);
         }, { noarchive: true });
     }
 
@@ -90,12 +90,21 @@ var Twitch = (function () {
     }
 
     function handleTwitchMessage(tokens, msg) {
-        var linkid = "",
+        var params = {},
             start = 1;
 
         if (tokens[1] && tokens[1].charAt(0) === "[") {
-            linkid = tokens[1];
+            args = tokens[1].substring(1, tokens[1].length-1).split(",");
             start = 2;
+
+            params = {
+                linkid: args[0]
+            };
+            for (let i = 1, len = args.length; i < len; i++) {
+                if (args[i].startsWith("username=")) {
+                    params["username"] = args[i].substring("username=".length);
+                }
+            }
         }
 
         var command = tokens[start];
@@ -115,23 +124,33 @@ var Twitch = (function () {
             return;
         }
 
-        TWITCH_COMMANDS[command].run(msg, linkid, args);
+        TWITCH_COMMANDS[command].run(msg, params, args);
 
         return;
     }
 
     function handleChatMessage(msg) {
-        if ((msg.type !== "api") || msg.content.indexOf(TWITCH_COMMAND) !== 0) {
+        if ((msg.type !== "api")) {
             return;
         }
 
+        if (msg.content.indexOf("!beyond --import ") === 0) {
+            //sendChat("!beyond", msg, undefined, {noarchive: true});
+            Twitch.write(msg, msg.who, {noarchive: true}, "!beyond");
+            return;
+        }
+
+        if (msg.content.indexOf(TWITCH_COMMAND) !== 0) {
+            return;
+        }
         return handleTwitchMessage(msg.content.split(" "), msg);
     }
 
     function registerCommands() {
         /* eslint-disable no-undef */
         TWITCH_COMMANDS["admin"] = TwitchAdminCommand;
-        TWITCH_COMMANDS["moveto"] = TwitchMovetoCommand;
+        TWITCH_COMMANDS["join"] = TwitchJoinCommand;
+        TWITCH_COMMANDS["move"] = TwitchMoveCommand;
         TWITCH_COMMANDS["ping"] = TwitchPingCommand;
         TWITCH_COMMANDS["query"] = TwitchQueryCommand;
         TWITCH_COMMANDS["roll"] = TwitchRollCommand;
@@ -294,7 +313,3 @@ var Twitch = (function () {
         getCleanImgsrc: getCleanImgsrc
     };
 }());
-
-on("ready", function () {
-    Twitch.registerCommands();
-});

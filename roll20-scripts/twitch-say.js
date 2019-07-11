@@ -2,7 +2,7 @@
 /* exported TwitchSayCommand */
 
 var TwitchSayCommand = {
-    run: function (msg, linkid, args) {
+    run: function (msg, params, args) {
         var name, object,
             objects = findObjs({
                 _pageid: Campaign().get("playerpageid"),

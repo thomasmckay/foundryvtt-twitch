@@ -1,4 +1,4 @@
-var Roll20 = (function () {
+var _Roll20 = (function () {
     var ROLL20_COMMANDS = {};
 
     var _options = {};
@@ -6,7 +6,7 @@ var Roll20 = (function () {
     var _viewers = new Array();
 
     var _reloadOptions = () => {
-        _options = require('./config/options.js');
+        _options = require('../config/options.js');
         _viewers = Array.from(_options.viewers);
     };
 
@@ -34,8 +34,9 @@ var Roll20 = (function () {
         }
 
         roll20Command = ROLL20_COMMANDS[tokens[1]];
-        if (roll20Command === undefined) {
-            console.log("Unrecognized command: " + tokens[1]);
+        if (roll20Command === undefined || roll20Command === "help") {
+            client.say(config.twitch.channels[0], "@" + userstate.username + " !roll20 commands: " +
+                       Object.keys(ROLL20_COMMANDS).join(", "))
             return;
         }
         command = roll20Command.run(self, userstate, message.substring(8));
@@ -45,7 +46,7 @@ var Roll20 = (function () {
             return;
         }
 
-        console.log(command);
+        console.log(command.substring(0, 100));
         if (nightmare && command) {
             nightmare
                 .insert('#textchat-input > textarea.ui-autocomplete-input', command + '\n')
@@ -59,17 +60,13 @@ var Roll20 = (function () {
     }
 
     var registerCommands = () => {
-        var Roll20AdminCommand = require('./roll20-admin.js');
-        ROLL20_COMMANDS["admin"] = new Roll20AdminCommand();
-        var Roll20RollCommand = require('./roll20-roll.js');
-        ROLL20_COMMANDS["roll"] = new Roll20RollCommand();
+        ROLL20_COMMANDS["admin"] = Roll20AdminCommand;
+        ROLL20_COMMANDS["join"] = Roll20JoinCommand;
+        ROLL20_COMMANDS["roll"] = Roll20RollCommand;
         ROLL20_COMMANDS["/roll"] = ROLL20_COMMANDS["roll"];
-        var Roll20PingCommand = require('./roll20-ping.js');
-        ROLL20_COMMANDS["ping"] = new Roll20PingCommand();
-        var Roll20MovetoCommand = require('./roll20-moveto.js');
-        ROLL20_COMMANDS["moveto"] = new Roll20MovetoCommand();
-        var Roll20SayCommand = require('./roll20-say.js');
-        ROLL20_COMMANDS["say"] = new Roll20SayCommand();
+        ROLL20_COMMANDS["ping"] = Roll20PingCommand;
+        ROLL20_COMMANDS["move"] = Roll20MoveCommand;
+        ROLL20_COMMANDS["say"] = Roll20SayCommand;
     }
 
     return {
@@ -80,9 +77,12 @@ var Roll20 = (function () {
     };
 }());
 
-module.exports = function () {
-    Roll20.registerCommands();
-    this.options = Roll20.options;
-    this.reloadOptions = Roll20.reloadOptions;
-    this.processMessage = Roll20.processMessage;
-}
+var Roll20 = (function () {
+    _Roll20.registerCommands();
+    return {
+        options: _Roll20.options,
+        reloadOptions: _Roll20.reloadOptions,
+        processMessage: _Roll20.processMessage
+    };
+}());
+

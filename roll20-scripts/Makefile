@@ -2,12 +2,14 @@ BUILD_DIR=build
 
 ROLL20_FILES = \
 	twitch-admin.js \
-	twitch-moveto.js \
+	twitch-join.js \
+	twitch-move.js \
 	twitch-ping.js \
 	twitch-query.js \
 	twitch-roll.js \
 	twitch-say.js \
-	twitch.js
+	twitch.js \
+	twitch-roll20.js
 
 #BUILD_FILES := $(addprefix $(BUILD_DIR)/, $(ROLL20_FILES))
 

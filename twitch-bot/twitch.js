@@ -3,7 +3,7 @@ const nightmare = Nightmare({ show: true });
 
 const tmi = require('tmi.js')
 
-config = require('./config/config.js').config;
+config = require('../config/config.js').config;
 
 var options= {
     options: {
@@ -34,18 +34,16 @@ nightmare
     .wait('textarea.ui-autocomplete-input')
     .exists('textarea.ui-autocomplete-input')
     .then(function(result) {
-        var Roll20 = require('./roll20.js');
-        var roll20 = new Roll20();
-        roll20.reloadOptions();
+        Roll20.reloadOptions();
         client
             .on('chat', function (channel, userstate, message, self) {
-                roll20.processMessage(nightmare, self, userstate, message);
+                Roll20.processMessage(nightmare, self, userstate, message);
             })
             .on('whisper', function (channel, userstate, message, self) {
-                roll20.processMessage(nightmare, self, userstate, message);
+                Roll20.processMessage(nightmare, self, userstate, message);
             })
             .on('action', function (channel, userstate, message, self) {
-                roll20.processMessage(nightmare, self, userstate, message);
+                Roll20.processMessage(nightmare, self, userstate, message);
             })
     })
     .catch(error => {
