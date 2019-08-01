@@ -6,6 +6,14 @@ var _Roll20JoinCommand = {
             message = message.substring(1);
         }
 
+        // TODO: This should be a full search of the config.players and their role
+        if (config.players[0].name !== userstate.username) {
+            client.say(config.twitch.channels[0], "@" + userstate.username +
+                       ": The 'join' command is for the GM. *waves at " + config.players[0].name +
+                       "*");
+            return undefined;
+        }
+
         try {
             args = TwitchJoinCommand.parseArgs(message.split(" "));
         } catch (e) {

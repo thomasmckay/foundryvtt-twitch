@@ -2,40 +2,52 @@
 /* exported TwitchSayCommand */
 
 var TwitchSayCommand = {
-    run: function (msg, params, args) {
-        var name, object,
-            objects = findObjs({
-                _pageid: Campaign().get("playerpageid"),
-                _type: "graphic",
-            });
+    parseArgs: function(args) {
+        var parsed = Twitch.parse({
+            "--help": Boolean,
+            "--name": String,
+            "-n": "--name"
+        }, options = {
+            argv: args,
+            permissive: true
+        });
 
-        if (args.length < 2) {
+        return parsed;
+    },
+
+
+    run: function (msg, params, args) {
+        try {
+            args = this.parseArgs(args);
+        } catch (e) {
+            Twitch.rawWrite("INTERNAL ERROR: Argument parsing failed", msg.who, "", "twitch say");
+            return;
+        }
+        if (args["--help"]) {
             Twitch.rawWrite("Usage: " + this.usage(true), msg.who, "", "twitch say");
             return;
         }
 
-        var name = args[0].toLowerCase();
-        args = args.slice(1)
+        var character = args["--name"];
+        if (!character) {
+            character = params["username"];
+        }
 
-        // Prevent non-text speaking
-        if (args[0].charAt(0) === "/" || args[0].charAt(0) === "`" || args[0].charAt(0) === "[") {
+        var allowed = TwitchAdminCommand.checkPermission(msg, params["username"], character, "say");
+        if (!allowed) {
+            log("DEBUG: permission denied");
             return;
         }
 
-        object = _.find(objects, function (obj) {
-            return obj.get("name").toLowerCase().startsWith(name);
-        });
-        if (object === undefined) {
-            return;
-        }
-        sendChat(object.get("name"), args.join(" "));
+        sendChat(character, args["_"].join(" "));
     },
 
-    usage: function (detailed) {
-        var message = "<b>say</b> $name $message\n";
+
+    usage: function (detailed, lineSeparator = "\n") {
+        var message = "say [--name $name] $message" + lineSeparator;
         if (detailed) {
-            message += "    $name: Object name to speak as, case insensitive\n";
-            message += "    $message: Message to speak\n";
+            message += "    --name | -n: Name to speak as" + lineSeparator;
+            message += "    $message: Message to speak" + lineSeparator;
         }
         return message;
     }
