@@ -22,6 +22,23 @@ var TwitchPingCommand = {
                 }
                 return parsed;
             }
+        } else if (args.length == 3) {
+            var x = Number(args[1]);
+            var y = Number(args[2]);
+            if (Number.isInteger(x) && Number.isInteger(y)) {
+                if (x < 0) {
+                    parsed["--left"] = Math.abs(x);
+                } else {
+                    parsed["--right"] = Math.abs(x);
+                }
+                if (y < 0) {
+                    parsed["--down"] = Math.abs(y);
+                } else {
+                    parsed["--up"] = Math.abs(y);
+                }
+                parsed["_"] = [args[0]];
+                return parsed;
+            }
         }
 
         parsed = Twitch.parse({
@@ -58,15 +75,14 @@ var TwitchPingCommand = {
             return;
         }
 
-        var character = TwitchAdminCommand.getTwitchCharacter(msg);
         name = args["_"][0];
         if (!name) {
             name = params["username"];
         }
         name = name.toLowerCase();
-        var allowed = TwitchAdminCommand.checkPermission(msg, character, msg.who, name, "ping");
+        var allowed = TwitchAdminCommand.checkPermission(msg, params["username"], name, "ping");
         if (!allowed) {
-            Twitch.rawWrite("Permission Denied", msg.who, "", "twitch ping");
+            log("DEBUG: permission denied");
             return;
         }
 
@@ -79,7 +95,7 @@ var TwitchPingCommand = {
             return obj.get("name").toLowerCase().startsWith(name);
         });
         if (object === undefined) {
-            Twitch.rawWrite("Usage: (name not found) " + this.usage(false), msg.who, "", "twitch ping");
+            Twitch.rawWrite("Usage: (name not found): " + name, msg.who, "", "twitch ping");
             return;
         }
 
@@ -106,12 +122,12 @@ var TwitchPingCommand = {
         sendPing(x, y, Campaign().get('playerpageid'), undefined, false);
     },
 
-    usage: function(detailed) {
-        var message = "<b>ping</b> $name [--left $n --right $n] [--up $n --down $n]\n";
+    usage: function(detailed, lineSeparator = "\n") {
+        var message = "ping [$name] [--left $n --right $n] [--up $n --down $n]" + lineSeparator;
         if (detailed) {
-            message += "    $name: Object name to ping, case insensitive\n";
-            message += "    --left $n --right $n: Left and right tile offsets from $name\n";
-            message += "    --up $n --down $n: Up and down tile offsets from $name\n";
+            message += "    $name: Specific name to ping, case insensitive" + lineSeparator;
+            message += "    --left $n --right $n: Left and right tile offsets from $name" + lineSeparator;
+            message += "    --up $n --down $n: Up and down tile offsets from $name" + lineSeparator;
         }
         return(message);
     }

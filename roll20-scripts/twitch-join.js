@@ -5,6 +5,7 @@ var TwitchJoinCommand = {
     parseArgs: function(args) {
         var parsed = Twitch.parse({
             "--help": Boolean,
+            "--force": Boolean,
             "--dndbeyond": String,
             "--img": String,
             "--hp": Number,
@@ -61,10 +62,9 @@ var TwitchJoinCommand = {
         character = _.find(objects, function (obj) {
             return obj.get("name").toLowerCase().startsWith(name.toLowerCase());
         });
-        var allowed = TwitchAdminCommand.checkPermission(msg, TwitchAdminCommand.getTwitchCharacter(msg),
-                                                         msg.who, name, "join");
+        var allowed = TwitchAdminCommand.checkPermission(msg, params["username"], name, "join");
         if (!allowed) {
-            Twitch.rawWrite("Permission Denied", msg.who, "", "twitch join");
+            log("DEBUG: permission denied");
             return;
         }
 
@@ -86,13 +86,16 @@ var TwitchJoinCommand = {
 
         // Create character
         if (!character) {
+            if (!args["--force"]) {
+                Twitch.rawWrite("Character does not exist", msg.who, "", "twitch join");
+                return;
+            }
             character = createObj("character", {
                 name: name,
                 inplayerjournals: "all",
                 controlledby: "all"
             });
             token = this.createToken();
-            //setDefaultTokenForCharacter(character, token);
         } else {
             var token,
                 objects = findObjs({
@@ -104,7 +107,6 @@ var TwitchJoinCommand = {
             });
             if (token === undefined) {
                 token = this.createToken();
-                //setDefaultTokenForCharacter(character, token);
             }
         }
 
@@ -124,7 +126,7 @@ var TwitchJoinCommand = {
             name: "ac"
         })[0];
         if (token !== undefined && attribute !== undefined) {
-            attribute.set("current", attribute.get("max"));
+            //attribute.set("current", attribute.get("max"));
             token.set("bar2_link", attribute.get("_id"));
         }
         setDefaultTokenForCharacter(character, token);

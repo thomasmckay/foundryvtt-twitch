@@ -2,3 +2,5 @@ twitch-bot/config/*.js
 twitch-bot/node_modules
 **/build
 roll20-scripts/login.txt
+roll20-scripts/node_modules
+roll20-scripts

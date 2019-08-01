@@ -44,10 +44,9 @@ var TwitchRollCommand = {
                 return obj.get("name").toLowerCase().startsWith(character.toLowerCase());
             });
         }
-        var allowed = TwitchAdminCommand.checkPermission(msg, TwitchAdminCommand.getTwitchCharacter(msg),
-                                                         msg.who, character, "roll");
+        var allowed = TwitchAdminCommand.checkPermission(msg, params["username"], character, "roll");
         if (!allowed) {
-            Twitch.rawWrite("Permission Denied", msg.who, "", "twitch roll");
+            log("DEBUG: permission denied");
             return;
         }
 

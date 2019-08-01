@@ -36,7 +36,7 @@ var _Roll20 = (function () {
         roll20Command = ROLL20_COMMANDS[tokens[1]];
         if (roll20Command === undefined || roll20Command === "help") {
             client.say(config.twitch.channels[0], "@" + userstate.username + " !roll20 commands: " +
-                       Object.keys(ROLL20_COMMANDS).join(", "))
+                       ["roll", "ping", "move"].join(", "))
             return;
         }
         command = roll20Command.run(self, userstate, message.substring(8));
@@ -46,8 +46,8 @@ var _Roll20 = (function () {
             return;
         }
 
-        console.log(command.substring(0, 100));
         if (nightmare && command) {
+            console.log(command.substring(0, 100));
             nightmare
                 .insert('#textchat-input > textarea.ui-autocomplete-input', command + '\n')
                 .click('#textchat-input > button.btn')

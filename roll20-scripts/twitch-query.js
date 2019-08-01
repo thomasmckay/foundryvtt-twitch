@@ -16,7 +16,7 @@ var TwitchQueryCommand = {
     },
 
     usage: function(detailed) {
-        var message = "<b>query</b> [ $property ]\n";
+        var message = "query [ $property ]\n";
         if (detailed) {
             message += "    $property: Property name (eg. name, top, left)\n";
         }

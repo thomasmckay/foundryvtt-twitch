@@ -14,3 +14,9 @@ docker build -t roll20-twitch:debug -f Dockerfile.debug . && docker run -it --rm
 The game script must be named 'build.js'
 
 make GAME=$game SCRIPT=$script
+
+
+node build/build.js
+
+cd roll20-scripts
+yarn eslint twitch*.js
