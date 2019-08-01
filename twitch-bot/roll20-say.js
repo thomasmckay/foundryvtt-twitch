@@ -1,9 +1,13 @@
 var Roll20SayCommand = {
     run: function(self, userstate, message) {
-        return("!twitch [#####] " + message);
+        return("!twitch [#####,username=" + userstate["display-name"] + "] " + message);
     }
 };
 
-module.exports = function () {
-    this.run = Roll20SayCommand.run;
-}
+
+var Roll20SayCommand = (function () {
+    return {
+        run: Roll20SayCommand.run
+    };
+}());
+

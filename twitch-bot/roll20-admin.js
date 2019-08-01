@@ -1,9 +1,12 @@
-var Roll20AdminCommand = {
+var _Roll20AdminCommand = {
     run: function(self, userstate, message) {
-        return("!twitch [#####] " + message);
+        return("!twitch [#####,username=" + userstate["display-name"] + "] " + message);
     }
 };
 
-module.exports = function () {
-    this.run = Roll20AdminCommand.run;
-}
+
+var Roll20AdminCommand = (function () {
+    return {
+        run: _Roll20AdminCommand.run
+    };
+}());

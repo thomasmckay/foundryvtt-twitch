@@ -2,7 +2,7 @@
 /* exported TwitchQueryCommand */
 
 var TwitchQueryCommand = {
-    run: function(msg, linkid, args) {
+    run: function(msg, params, args) {
         var value;
         var obj = getObj(msg.selected[0]._type, msg.selected[0]._id);
         if (args.length === 0 || obj === undefined) {

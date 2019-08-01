@@ -2,18 +2,24 @@
 /* exported TwitchRollCommand */
 
 var TwitchRollCommand = {
-    run: function(msg, linkid, args) {
+    parseArgs: function(args) {
+        var parsed = Twitch.parse({
+            "--help": Boolean,
+            "--name": String,
+            "-n": "--name"
+        }, options = {
+            argv: args,
+            permissive: true
+        });
+
+        return parsed;
+    },
+
+    run: function(msg, params, args) {
         var dice, character;
 
         try {
-            args = Twitch.parse({
-                "--help": Boolean,
-                "--name": String,
-                "-n": "--name"
-            }, options = {
-                argv: args,
-                permissive: true
-            });
+            args = this.parseArgs(args);
         } catch (e) {
             Twitch.rawWrite("INTERNAL ERROR: Argument parsing failed", msg.who, "", "twitch roll");
             return;
@@ -24,6 +30,9 @@ var TwitchRollCommand = {
         }
 
         character = args["--name"];
+        if (!character) {
+            character = params["username"];
+        }
         var characterid = undefined;
         if (!character) {
             character = "None";
@@ -48,14 +57,14 @@ var TwitchRollCommand = {
         } else if (characterid !== undefined) {
             character = "character|" + characterid.id;
         }
-        Twitch.write("/roll " + dice, linkid, {use3d: true}, character);
+        Twitch.write("/roll " + dice, params, {use3d: true}, character);
     },
 
-    usage: function(detailed) {
-        var message = "<b>roll</b> roll $dice [--name $character]\n";
+    usage: function(detailed, lineSeparator = "\n") {
+        var message = "!roll20 roll $dice [--name $character]" + lineSeparator;
         if (detailed) {
-            message += "    $dice: Dice to roll (eg. d20, 2d10, d6+2)\n";
-            message += "    --name | -n: Start of character name to roll for\n";
+            message += "    $dice: Dice to roll (eg. d20, 2d10, d6+2)" + lineSeparator;
+            message += "    --name | -n: Start of character name to roll for" + lineSeparator;
         }
         return(message);
     }

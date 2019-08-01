@@ -16,7 +16,7 @@
     "ws": "^3.2.0"
   },
   "scripts": {
-    "start": "node twitch.js",
+    "start": "node build/build.js",
     "test": "node roll20_test.js"
   }
 }

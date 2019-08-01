@@ -1,7 +1,7 @@
 /* global Twitch:true */
-/* exported TwitchPingCommand */
+/* exported TwitchMoveCommand */
 
-var TwitchPingCommand = {
+var TwitchMoveCommand = {
 
     parseArgs: function(args) {
         var parsed = {"_": []};
@@ -49,12 +49,11 @@ var TwitchPingCommand = {
         try {
             args = this.parseArgs(args);
         } catch (e) {
-            Twitch.rawWrite("INTERNAL ERROR: Argument parsing failed", msg.who, "", "twitch ping");
+            Twitch.rawWrite("INTERNAL ERROR: Argument parsing failed", msg.who, "", "twitch move");
             return;
         }
-
         if (args["--help"]) {
-            Twitch.rawWrite("Usage: " + this.usage(true), msg.who, "", "twitch ping");
+            Twitch.rawWrite("Usage: " + this.usage(true), msg.who, "", "twitch move");
             return;
         }
 
@@ -64,9 +63,9 @@ var TwitchPingCommand = {
             name = params["username"];
         }
         name = name.toLowerCase();
-        var allowed = TwitchAdminCommand.checkPermission(msg, character, msg.who, name, "ping");
+        var allowed = TwitchAdminCommand.checkPermission(msg, character, msg.who, name, "move");
         if (!allowed) {
-            Twitch.rawWrite("Permission Denied", msg.who, "", "twitch ping");
+            Twitch.rawWrite("Permission Denied", msg.who, "", "twitch move");
             return;
         }
 
@@ -104,12 +103,14 @@ var TwitchPingCommand = {
         y = y + deltaY * 70;
 
         sendPing(x, y, Campaign().get('playerpageid'), undefined, false);
+        object.set("top", y);
+        object.set("left", x);
     },
 
     usage: function(detailed) {
-        var message = "<b>ping</b> $name [--left $n --right $n] [--up $n --down $n]\n";
+        var message = "<b>move</b> $name [--left $n --right $n] [--up $n --down $n]\n";
         if (detailed) {
-            message += "    $name: Object name to ping, case insensitive\n";
+            message += "    $name: Object name to move, case insensitive\n";
             message += "    --left $n --right $n: Left and right tile offsets from $name\n";
             message += "    --up $n --down $n: Up and down tile offsets from $name\n";
         }

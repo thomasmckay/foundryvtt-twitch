@@ -7,24 +7,31 @@ var options = {
         reconnect: true
     },
     twitch: {
-        # Twitch user name:
-        # https://www.twitch.tv/<user>
-        #
+        // Twitch user name:
+        // https://www.twitch.tv/<user>
+        //
         username: "<user>",
-        # Twitch oauth token generated at https://twitchapps.com/tmi/
-        #
+        // Twitch oauth token generated at https://twitchapps.com/tmi/
+        //
         password: "oauth:<oauth>",
-        # One or more channels to monitor chat. Most commonly the
-        # same as the 'username'
-        #
+        // One or more channels to monitor chat. Most commonly the
+        // same as the 'username'
+        //
         channels: ["#<channel>"]
     },
     roll20: {
         username: "<user>",
         password: "<password">,
-        # The Roll20 ID may be found in the URL of your game:
-        # https://app.roll20.net/campaigns/details/<roll20 id>/torchbearer
+        // The Roll20 ID may be found in the URL of your game:
+        // https://app.roll20.net/campaigns/details/<roll20 id>/torchbearer
         campaign: "<roll20 id>"
+    },
+    dndbeyond: {
+        // In browser, visit a character page with Chrome DevTools open. Next, right click
+        // on request in the "Network" tab, then Copy -> Copy as curl. Paste somewhere and
+        // copy just the "cookie" Header content here. This may have to be periodically updated
+        // to keep valid.
+        cookie: "<cookie>"
     },
     players: [
         {
@@ -34,6 +41,6 @@ var options = {
     ]
 };
 
-# Required for external reference, do not change
-#
+// Required for external reference, do not change
+//
 module.exports.config = config;

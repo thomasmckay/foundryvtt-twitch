@@ -2,7 +2,7 @@
 /* exported TwitchAdminCommand */
 
 var TwitchAdminCommand = {
-    run: function (msg, linkid, args) {
+    run: function (msg, params, args) {
         var username, twitch;
 
         if (args.length < 2) {
@@ -86,6 +86,12 @@ var TwitchAdminCommand = {
         if (username.endsWith(" (GM)")) {
             username = username.substring(0, username.length - 5);
         }
+
+        // Always true if character starts with username
+        if (character.toLowerCase().startsWith(character.toLowerCase())) {
+            return true;
+        }
+
         var userPermissions = findObjs({
             _type: "ability",
             _characterid: twitch.id,
@@ -120,7 +126,7 @@ var TwitchAdminCommand = {
             return true;
         }
 
-        // DRY up this
+        // TODO: DRY up this
         var userPermissions = findObjs({
             _type: "ability",
             _characterid: twitch.id,
