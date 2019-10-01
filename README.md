@@ -20,3 +20,15 @@ node build/build.js
 
 cd roll20-scripts
 yarn eslint twitch*.js
+
+
+
+const getTurnArray = () => ( '' === Campaign().get('turnorder') ? [] : JSON.parse(Campaign().get('turnorder')));
+const setTurnArray = (ta) => Campaign().set({turnorder: JSON.stringify(ta)});
+const addTokenTurn = (id, pr) => Campaign().set({ turnorder: JSON.stringify( [...getTurnArray(), {id,pr}]) });
+const addCustomTurn = (custom, pr) => Campaign().set({ turnorder: JSON.stringify( [...getTurnArray(), {id:-1,custom,pr}]) });
+const removeTokenTurn = (tid) => Campaign().set({ turnorder: JSON.stringify( getTurnArray().filter( (to) => to.id !== tid)) });
+const clearTurnOrder = () => Campaign().set({turnorder:'[]'});
+const sorter_asc = (a, b) => b.pr - a.pr;
+const sorter_desc = (a, b) => a.pr - b.pr;
+const sortTurnOrder = (sortBy = sorter_desc) => Campaign().set({turnorder: JSON.stringify(getTurnArray().sort(sortBy))});
