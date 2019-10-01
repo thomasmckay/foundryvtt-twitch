@@ -1,14 +1,16 @@
-/* global Twitch:true */
 /* exported TwitchMoveCommand */
+/* global Twitch:true */
+/* global TwitchAdminCommand:true */
 
 var TwitchMoveCommand = {
 
     parseArgs: function(args) {
-        var parsed = {"_": []};
+        var parsed = {"_": []},
+            x, y;
 
         if (args.length == 2) {
-            var x = Number(args[0]);
-            var y = Number(args[1]);
+            x = Number(args[0]);
+            y = Number(args[1]);
             if (Number.isInteger(x) && Number.isInteger(y)) {
                 if (x < 0) {
                     parsed["--left"] = Math.abs(x);
@@ -23,8 +25,8 @@ var TwitchMoveCommand = {
                 return parsed;
             }
         } else if (args.length == 3) {
-            var x = Number(args[1]);
-            var y = Number(args[2]);
+            x = Number(args[1]);
+            y = Number(args[2]);
             if (Number.isInteger(x) && Number.isInteger(y)) {
                 if (x < 0) {
                     parsed["--left"] = Math.abs(x);
@@ -41,6 +43,7 @@ var TwitchMoveCommand = {
             }
         }
 
+        /* eslint-disable no-undef */
         parsed = Twitch.parse({
             "--help": Boolean,
             "--left": Number,
@@ -55,6 +58,7 @@ var TwitchMoveCommand = {
             argv: args,
             permissive: true
         });
+        /* eslint-enable no-undef */
 
         return parsed;
     },
@@ -130,6 +134,6 @@ var TwitchMoveCommand = {
             message += "    --left $n --right $n: Left and right tile offsets from $name" + lineSeparator;
             message += "    --up $n --down $n: Up and down tile offsets from $name" + lineSeparator;
         }
-        return(message);
+        return message;
     }
 };

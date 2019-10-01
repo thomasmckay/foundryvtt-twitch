@@ -1,8 +1,10 @@
-/* global Twitch:true */
 /* exported TwitchSayCommand */
+/* global Twitch:true */
+/* global TwitchAdminCommand:true */
 
 var TwitchSayCommand = {
     parseArgs: function(args) {
+        /* eslint-disable no-undef */
         var parsed = Twitch.parse({
             "--help": Boolean,
             "--name": String,
@@ -11,6 +13,7 @@ var TwitchSayCommand = {
             argv: args,
             permissive: true
         });
+        /* eslint-enable no-undef */
 
         return parsed;
     },

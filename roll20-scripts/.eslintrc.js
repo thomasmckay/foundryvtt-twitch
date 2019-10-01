@@ -8,12 +8,15 @@ module.exports = {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
         "_": false,
-        "Twitch": false,
+        "createObj": false,
         "sendChat": false,
         "Shell": false,
         "on": false,
         "log": false,
-        "findObjs": false
+        "findObjs": false,
+        "Campaign": false,
+        "sendPing": false,
+        "getObj": false
     },
     "parserOptions": {
         "ecmaVersion": 2018
