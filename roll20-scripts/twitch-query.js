@@ -20,6 +20,6 @@ var TwitchQueryCommand = {
         if (detailed) {
             message += "    $property: Property name (eg. name, top, left)\n";
         }
-        return(message);
+        return message;
     }
 };

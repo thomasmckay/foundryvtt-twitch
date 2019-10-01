@@ -1,3 +1,6 @@
+/* exported TwitchAdminCommand */
+/* global Twitch:true */
+
 var TwitchAdminCommand = {
     run: function (msg, params, args) {
         var username, twitch;

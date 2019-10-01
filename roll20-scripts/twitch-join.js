@@ -1,8 +1,12 @@
-/* global Twitch:true */
 /* exported TwitchJoinCommand */
+/* global BeyondImporter:true */
+/* global setDefaultTokenForCharacter:true */
+/* global Twitch:true */
+/* global TwitchAdminCommand:true */
 
 var TwitchJoinCommand = {
     parseArgs: function(args) {
+        /* eslint-disable no-undef */
         var parsed = Twitch.parse({
             "--help": Boolean,
             "--force": Boolean,
@@ -10,16 +14,18 @@ var TwitchJoinCommand = {
             "--img": String,
             "--hp": Number,
             "--ac": Number,
-            "--json": String,  // Hidden
+            // Hidden
+            "--json": String,
         }, options = {
             argv: args,
             permissive: true
         });
+        /* eslint-enable no-undef */
 
         return parsed;
     },
 
-    createToken: function() {
+    createToken: function(name) {
         var token = createObj("graphic", {
             _subtype: "token",
             pageid: Campaign().get("playerpageid"),
@@ -41,7 +47,7 @@ var TwitchJoinCommand = {
     },
 
     run: function(msg, params, args) {
-        var dice, character;
+        var name, character, objects;
 
         try {
             args = this.parseArgs(args);
@@ -55,8 +61,8 @@ var TwitchJoinCommand = {
         }
 
         name = params["username"];
-        var character = undefined;
-        var objects = findObjs({
+        character = undefined;
+        objects = findObjs({
             _type: "character",
         });
         character = _.find(objects, function (obj) {
@@ -85,6 +91,7 @@ var TwitchJoinCommand = {
         }
 
         // Create character
+        var token;
         if (!character) {
             if (!args["--force"]) {
                 Twitch.rawWrite("Character does not exist", msg.who, "", "twitch join");
@@ -95,30 +102,37 @@ var TwitchJoinCommand = {
                 inplayerjournals: "all",
                 controlledby: "all"
             });
-            token = this.createToken();
+            token = this.createToken(name);
         } else {
-            var token,
-                objects = findObjs({
-                    _pageid: Campaign().get("playerpageid"),
-                    _type: "graphic",
-                });
+            objects = findObjs({
+                _pageid: Campaign().get("playerpageid"),
+                _type: "graphic",
+            });
             token = _.find(objects, function (obj) {
                 return obj.get("name").toLowerCase().startsWith(name);
             });
             if (token === undefined) {
-                token = this.createToken();
+                token = this.createToken(name);
             }
         }
 
         token.set("represents", character.id);
 
-        attribute = findObjs({
+        var attribute = findObjs({
             _type: "attribute",
             _characterid: character.id,
             name: "hp"
         })[0];
         if (token !== undefined && attribute !== undefined) {
             token.set("bar1_link", attribute.get("_id"));
+        }
+        if (token !== undefined) {
+            var hp = args["--hp"];
+            if (hp === undefined) {
+                hp = 10;
+            }
+            token.set("bar1_max", hp);
+            token.set("bar1_value", hp);
         }
         attribute = findObjs({
             _type: "attribute",
@@ -129,11 +143,19 @@ var TwitchJoinCommand = {
             //attribute.set("current", attribute.get("max"));
             token.set("bar2_link", attribute.get("_id"));
         }
+        if (token !== undefined) {
+            var ac = args["--ac"];
+            if (ac === undefined) {
+                ac = 10;
+            }
+            token.set("bar2_max", ac);
+            token.set("bar2_value", ac);
+        }
         setDefaultTokenForCharacter(character, token);
 
         const style = "margin-left: 0px; overflow: hidden; background-color: #fff; border: 1px solid #000; padding: 5px; border-radius: 5px;";
         sendChat("!roll20 join", '<div style="' + style + '">Player <b>' + name +
-                 '</b> is ready!</div>', null, {noarchive:true});
+                 '</b> is ready!</div>', null, {noarchive: true});
     },
 
     usage: function(detailed, lineSeparator = "\n") {
@@ -144,6 +166,6 @@ var TwitchJoinCommand = {
             message += "    --name | -n: Start of character name to join for" + lineSeparator;
         }
         */
-        return(message);
+        return (message);
     }
 };

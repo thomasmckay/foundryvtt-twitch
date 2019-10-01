@@ -1,8 +1,10 @@
-/* global Twitch:true */
 /* exported TwitchRollCommand */
+/* global Twitch:true */
+/* global TwitchAdminCommand:true */
 
 var TwitchRollCommand = {
     parseArgs: function(args) {
+        /* eslint-disable no-undef */
         var parsed = Twitch.parse({
             "--help": Boolean,
             "--name": String,
@@ -11,6 +13,7 @@ var TwitchRollCommand = {
             argv: args,
             permissive: true
         });
+        /* eslint-enable no-undef */
 
         return parsed;
     },
@@ -65,6 +68,6 @@ var TwitchRollCommand = {
             message += "    $dice: Dice to roll (eg. d20, 2d10, d6+2)" + lineSeparator;
             message += "    --name | -n: Start of character name to roll for" + lineSeparator;
         }
-        return(message);
+        return message;
     }
 };

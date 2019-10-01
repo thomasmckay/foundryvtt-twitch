@@ -1,3 +1,5 @@
+/* exported Twitch */
+
 //var Twitch = Twitch || (function() {
 var Twitch = (function () {
     var TWITCH_COMMAND = "!twitch";
