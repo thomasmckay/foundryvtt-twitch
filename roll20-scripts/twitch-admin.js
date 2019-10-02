@@ -79,22 +79,18 @@ var TwitchAdminCommand = {
 
 
     checkUserPermissions: function (twitch_id, username, character, command) {
-        log(Twitch.sprintf("DEBUG: checkUserPermissions: username=%s, character=%s, command=%s",
-            username, character, command));
         var userPermissions = findObjs({
             _type: "ability",
             _characterid: twitch_id,
             name: username.toLowerCase()
         })[0];
         if (userPermissions === undefined) {
-            log(Twitch.sprintf("DEBUG: checkPermission: twitch character not found with permissions for: %s", username));
             return false;
         }
 
         var permissions = this.getPermissions(userPermissions.get("action"));
 
         // Check for specific user under username
-        log("DEBUG: checkPermission: character.toLowerCase()=" + character.toLowerCase());
         var permission = undefined;
         Object.keys(permissions).forEach(function(key) {
             key = key.toLowerCase();
@@ -103,24 +99,20 @@ var TwitchAdminCommand = {
             }
         })
         if (permission !== undefined && permission.indexOf(command) !== -1) {
-            log("DEBUG: checkPermission: permission found, returning true");
             return true;
         }
 
         // Check for 'All' under username
         Object.keys(permissions).forEach(function(key) {
             key = key.toLowerCase();
-            log(Twitch.sprintf("DEBUG: checkPermission: 'All' character permission: %s", key));
             if (key === "all") {
                 permission = permissions[key];
             }
         })
         if (permission !== undefined && permission.indexOf(command) !== -1) {
-            log(Twitch.sprintf("DEBUG: checkPermission: 'All' permission '%s', returning true", permission));
             return true;
         }
 
-        log("DEBUG: checkPermission: returning false");
         return false;
     },
 

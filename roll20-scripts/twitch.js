@@ -150,6 +150,7 @@ var Twitch = (function () {
     function registerCommands() {
         /* eslint-disable no-undef */
         TWITCH_COMMANDS["admin"] = TwitchAdminCommand;
+        TWITCH_COMMANDS["arrow"] = TwitchArrowCommand;
         TWITCH_COMMANDS["join"] = TwitchJoinCommand;
         TWITCH_COMMANDS["move"] = TwitchMoveCommand;
         TWITCH_COMMANDS["ping"] = TwitchPingCommand;

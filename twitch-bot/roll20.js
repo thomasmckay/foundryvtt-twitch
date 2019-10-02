@@ -36,7 +36,7 @@ var _Roll20 = (function () {
         roll20Command = ROLL20_COMMANDS[tokens[1]];
         if (roll20Command === undefined || roll20Command === "help") {
             client.say(config.twitch.channels[0], "@" + userstate.username + " !roll20 commands: " +
-                       ["roll", "ping", "move"].join(", "))
+                       ["roll", "ping", "move", "arrow"].join(", "))
             return;
         }
         command = roll20Command.run(self, userstate, message.substring(8));
@@ -61,6 +61,7 @@ var _Roll20 = (function () {
 
     var registerCommands = () => {
         ROLL20_COMMANDS["admin"] = Roll20AdminCommand;
+        ROLL20_COMMANDS["arrow"] = Roll20AdminCommand;
         ROLL20_COMMANDS["join"] = Roll20JoinCommand;
         ROLL20_COMMANDS["roll"] = Roll20RollCommand;
         ROLL20_COMMANDS["/roll"] = ROLL20_COMMANDS["roll"];
