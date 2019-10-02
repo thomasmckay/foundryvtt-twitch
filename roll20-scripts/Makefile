@@ -2,6 +2,7 @@ BUILD_DIR=build
 
 ROLL20_FILES = \
 	twitch-admin.js \
+	twitch-arrow.js \
 	twitch-join.js \
 	twitch-move.js \
 	twitch-ping.js \

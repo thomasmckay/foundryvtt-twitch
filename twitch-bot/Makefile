@@ -2,6 +2,7 @@ BUILD_DIR=build
 
 ROLL20_FILES = \
 	../roll20-scripts/twitch-admin.js \
+	../roll20-scripts/twitch-arrow.js \
 	../roll20-scripts/twitch-join.js \
 	../roll20-scripts/twitch-move.js \
 	../roll20-scripts/twitch-ping.js \
@@ -12,6 +13,7 @@ ROLL20_FILES = \
 
 TWITCH_FILES = \
 	roll20-admin.js \
+	roll20-arrow.js \
 	roll20-join.js \
 	roll20-move.js \
 	roll20-ping.js \
