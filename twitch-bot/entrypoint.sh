@@ -9,6 +9,9 @@ if ! whoami &> /dev/null; then
   fi
 fi
 
+# Required for electron to run
+#/usr/bin/dbus-uuidgen > /etc/machine-id
+
 display_usage() {
     echo "Usage: ${0} <start|shell|help>"
 }
@@ -23,11 +26,15 @@ case "$ENTRY" in
     "shell")
         exec /usr/bin/scl enable rh-nodejs8 /bin/bash
         ;;
-    "start")
-        Xvfb -ac -screen scrn 1280x2000x24 :99.0 &
-        export DISPLAY=:99.0
-        export PATH=/roll20-twitch/node_modules/.bin:$PATH
-        exec /usr/bin/scl enable rh-nodejs8 "npm start"
+    "debug")
+        export DEBUG=nightmare:*,electron:*
+        export HOME=/roll20-twitch
+        exec /usr/bin/scl enable rh-nodejs8 '/usr/bin/xvfb-run --server-args="-ac -screen scrn 1280x2000x24 :99.0" node build/build.js' 2>&1 | /bin/grep -v password
+        ;;
+    "server")
+        export DEBUG=nightmare:actions
+        export HOME=/roll20-twitch
+        exec /usr/bin/scl enable rh-nodejs8 '/usr/bin/xvfb-run --server-args="-ac -screen scrn 1280x2000x24 :99.0" node build/build.js' 2>&1 | /bin/grep -v password
         ;;
     *)
         exec $ENTRY

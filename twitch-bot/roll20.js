@@ -6,7 +6,7 @@ var _Roll20 = (function () {
     var _viewers = new Array();
 
     var _reloadOptions = () => {
-        _options = require('../config/options.js');
+        _options = require('../config/config.js').config;
         _viewers = Array.from(_options.viewers);
     };
 
