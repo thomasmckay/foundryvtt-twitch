@@ -1,0 +1,169 @@
+# ansible-playbook -i "localhost," -e "pwd=`pwd`" -e "config=/home/thomasmckay/code/roll20-twitch/twitch-bot/config/config.js" ~/code/roll20-twitch/twitch-bot/openshift-ansible.yaml 
+
+- hosts: localhost
+  gather_facts: false
+
+  vars:
+    namespace: "roll20-twitch"
+    image: "quay.io/thomasmckay/roll20-twitch:0.0.1-1"
+
+  tasks:
+  - name: "Namespace {{ namespace }}"
+    k8s:
+      kind: Namespace
+      kubeconfig: "{{ pwd }}/auth/kubeconfig"
+      state: present
+      api_version: v1
+      name: "{{ namespace }}"
+
+
+  - name: Check for Secret 'roll20-twitch-pull-secret'
+    command: oc --config={{ pwd }}/auth/kubeconfig get secrets -n {{ namespace }} -o jsonpath='{.items[?(.metadata.name=="roll20-twitch-pull-secret")].metadata.name}'
+    register: result
+  - name: Create Secret 'roll20-twitch-pull-secret'
+    when: result.stdout != "roll20-twitch-pull-secret"
+    shell:
+      cmd: |
+        oc --config={{ pwd }}/auth/kubeconfig create secret generic roll20-twitch-pull-secret --from-file=.dockerconfigjson=/home/thomasmckay/.docker/config.json --type=kubernetes.io/dockerconfigjson -n {{ namespace }}
+        oc --config={{ pwd }}/auth/kubeconfig secrets link default roll20-twitch-pull-secret --for=pull -n {{ namespace }}
+        oc --config={{ pwd }}/auth/kubeconfig secrets link deployer roll20-twitch-pull-secret -n {{ namespace }}
+
+
+  - name: "Check for '{{ image }}' image"
+    shell:
+      cmd: oc --config={{ pwd }}/auth/kubeconfig get images -n {{ namespace}} -o jsonpath='{.items[*].dockerImageReference}' | grep quay.io/thomasmckay/roll20-twitch
+    ignore_errors: yes
+    register: result
+  - name: "Import image '{{ image }}'"
+    when: result is failure
+    command: oc --config={{ pwd }}/auth/kubeconfig import-image roll20-twitch:deploy --from={{ image }} -n {{ namespace }} --confirm
+
+
+  - name: Check for Role 'roll20-twitch-serviceaccount'
+    command: oc --config={{ pwd }}/auth/kubeconfig get roles -n {{ namespace }} -o jsonpath='{.items[?(.metadata.name=="roll20-twitch-serviceaccount")].metadata.name}'
+    register: result
+  - name: Create Role 'roll20-twitch-serviceaccount'
+    when: result.stdout != "roll20-twitch-serviceaccount"
+    shell:
+      cmd: |
+        cat <<EOF | oc --config={{ pwd }}/auth/kubeconfig apply -n {{ namespace }} -f -
+        apiVersion: v1
+        kind: Role
+        metadata:
+          name: roll20-twitch-serviceaccount
+          namespace: {{ namespace }}
+        rules:
+        - apiGroups:
+          - ""
+          resources:
+          - secrets
+          verbs:
+          - get
+          # TODO: below don't work openshift online
+          - put
+          - patch
+          - update
+        - apiGroups:
+          - ""
+          resources:
+          - namespaces
+          verbs:
+          - get
+        - apiGroups:
+          - extensions
+          - apps
+          resources:
+          - deployments
+          verbs:
+          - get
+          - list
+          - patch
+          - update
+          - watch
+        EOF
+  - name: Check for RoleBinding 'roll20-twitch-secret-writer'
+    command: oc --config={{ pwd }}/auth/kubeconfig get roles -n {{ namespace }} -o jsonpath='{.items[?(.metadata.name=="roll20-twitch-secret-writer")].metadata.name}'
+    register: result
+  - name: Create RoleBinding 'roll20-twitch-secret-writer'
+    when: result.stdout != "roll20-twitch-secret-writer"
+    shell:
+      cmd: |
+        cat <<EOF | oc --config={{ pwd }}/auth/kubeconfig apply -n {{ namespace }} -f -
+        apiVersion: rbac.authorization.k8s.io/v1beta1
+        kind: RoleBinding
+        metadata:
+          name: roll20-twitch-secret-writer
+          namespace: {{ namespace }}
+        roleRef:
+          #apiGroup: rbac.authorization.k8s.io
+          kind: Role
+          name: roll20-twitch-serviceaccount
+        subjects:
+        - kind: ServiceAccount
+          name: default
+        EOF
+
+
+  - name: Check for Secret 'roll20-twitch-config-secret'
+    command: oc --config={{ pwd }}/auth/kubeconfig get secrets -n {{ namespace }} -o jsonpath='{.items[?(.metadata.name=="roll20-twitch-config-secret")].metadata.name}'
+    register: result
+  - name: Create Secret 'roll20-twitch-config-secret'
+    when: result.stdout != "roll20-twitch-config-secret"
+    command: oc --config={{ pwd }}/auth/kubeconfig create secret generic roll20-twitch-config-secret -n {{ namespace }} --from-file=config.js={{ config }} --type config
+
+
+  - name: Check for Deployment 'roll20-twitch'
+    command: oc --config={{ pwd }}/auth/kubeconfig get deployments -n {{ namespace }} -o jsonpath='{.items[?(.metadata.name=="roll20-twitch")].metadata.name}'
+    register: result
+  - name: Create Deployment 'roll20-twitch'
+    when: result.stdout != "roll20-twitch"
+    shell:
+      cmd: |
+        cat <<EOF | oc --config={{ pwd }}/auth/kubeconfig apply -n {{ namespace }} -f -
+        apiVersion: extensions/v1beta1
+        kind: Deployment
+        metadata:
+          namespace: {{ namespace }}
+          name: roll20-twitch
+          labels:
+            roll20-twitch-component: app
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              roll20-twitch-component: app
+          template:
+            metadata:
+              namespace: {{ namespace }}
+              labels:
+                roll20-twitch-component: app
+            spec:
+              volumes:
+                - name: configvolume
+                  projected:
+                    defaultMode: 0777
+                    sources:
+                    - secret:
+                        name: roll20-twitch-config-secret
+                        path: config.js
+              containers:
+              - name: roll20-twitch
+                image: {{ image }}
+                imagePullPolicy: Always
+                env:
+                  - name: ENTRY
+                    value: "server"
+                  - name: REDEPLOY
+                    value: "1"
+                ports:
+                - containerPort: 80
+                  protocol: TCP
+                - containerPort: 443
+                  protocol: TCP
+                volumeMounts:
+                - name: configvolume
+                  readOnly: false
+                  mountPath: /roll20-twitch/config
+              imagePullSecrets:
+                - name: roll20-twitch-pull-secret
+        EOF

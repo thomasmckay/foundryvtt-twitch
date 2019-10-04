@@ -1,12 +1,13 @@
-FROM registry.redhat.io/rhel7:7.6
+FROM registry.access.redhat.com/ubi7/ubi:latest
 LABEL maintainer thomasmckay@redhat.com
 
 ENV LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8
 
-ENV R20TDIR /roll20-twitch
+ENV RUNDIR /roll20-twitch
 RUN mkdir /roll20-twitch
 WORKDIR /roll20-twitch
+
 
 RUN INSTALL_PKGS="\
         rh-nodejs8 \
@@ -31,13 +32,7 @@ RUN INSTALL_PKGS="\
 COPY LICENSE .
 COPY package.json .
 COPY package-lock.json .
-COPY twitch.js .
-COPY roll20.js .
-COPY roll20-admin.js .
-COPY roll20-ping.js .
-COPY roll20-move.js .
-COPY roll20-roll.js .
-COPY roll20-say.js .
+COPY build build
 COPY entrypoint.sh .
 
 RUN scl enable rh-nodejs8 "\
@@ -48,18 +43,24 @@ RUN scl enable rh-nodejs8 "\
 RUN UNINSTALL_PKGS="\
         kernel-headers \
         " && \
-#     yum remove -y $UNINSTALL_PKGS && \
-#     yum clean all && \
+    yum remove -y $UNINSTALL_PKGS && \
+    yum clean all && \
     rm -rf /var/cache/yum /tmp/* /var/tmp/* /root/.cache
 
-RUN chgrp -R 0 $R20TDIR && \
-    chmod -R g=u $R20TDIR
+RUN chgrp -R 0 $RUNDIR && \
+    chmod -R g=u $RUNDIR
+
+RUN touch /etc/machine-id && \
+    chmod g=u /etc/machine-id
 
 RUN chmod g=u /etc/passwd
 
-VOLUME ["/quay-registry/config"]
+RUN /usr/bin/dbus-uuidgen > /etc/machine-id && \
+    chmod g=u /etc/machine-id
+
+VOLUME ["/roll20-twitch/config"]
 
 ENTRYPOINT ["/roll20-twitch/entrypoint.sh"]
-CMD ["start"]
+CMD ["server"]
 
 #USER 1001
