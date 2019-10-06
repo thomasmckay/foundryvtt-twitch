@@ -53,7 +53,7 @@ var TwitchRollCommand = {
             return;
         }
 
-        if (characterName === "None") {
+        if (characterName === "None" || character === undefined) {
             character = msg.who;
         } else if (characterid !== undefined) {
             character = "character|" + characterid.id;

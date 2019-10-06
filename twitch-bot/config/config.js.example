@@ -33,7 +33,13 @@ var options = {
         // to keep valid.
         cookie: "<cookie>"
     },
-    players: [
+    viewers: [
+        // First in list is considered an admin in special cases
+        {
+            name: "<twitch user>",
+            role: "<master|player|chat>"
+        },
+        // Remainder of list is to give privileges in some cases
         {
             name: "<twitch user>",
             role: "<master|player|chat>"

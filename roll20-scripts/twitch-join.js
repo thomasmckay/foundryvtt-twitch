@@ -9,7 +9,6 @@ var TwitchJoinCommand = {
         /* eslint-disable no-undef */
         var parsed = Twitch.parse({
             "--help": Boolean,
-            "--force": Boolean,
             "--dndbeyond": String,
             "--img": String,
             "--hp": Number,
@@ -46,6 +45,32 @@ var TwitchJoinCommand = {
         return token;
     },
 
+    setAttribute: function(msg, character, token, bar, name, value, defaultValue) {
+        var attribute = findObjs({
+            _type: "attribute",
+            _characterid: character.id,
+            name: name
+        })[0];
+        if (attribute === undefined) {
+            if (value === undefined) {
+                value = defaultValue;
+            }
+            attribute = createObj("attribute", {
+                name: name,
+                current: value,
+                characterid: character.id
+            });
+        }
+        if (value === undefined) {
+            value = attribute.get("current");
+        } else {
+            attribute.set("current", value);
+        }
+        token.set(bar + "_link", attribute.get("_id"));
+        token.set(bar + "_max", value);
+        token.set(bar + "_value", value);
+    },
+
     run: function(msg, params, args) {
         var name, character, objects;
 
@@ -78,6 +103,7 @@ var TwitchJoinCommand = {
         if (args["--dndbeyond"]) {
             return;
         }
+
         if (args["--json"]) {
             try {
                 JSON.parse(msg.content.substring(msg.content.indexOf("--json") + 7));
@@ -93,10 +119,6 @@ var TwitchJoinCommand = {
         // Create character
         var token;
         if (!character) {
-            if (!args["--force"]) {
-                Twitch.rawWrite("Character does not exist", msg.who, "", "twitch join");
-                return;
-            }
             character = createObj("character", {
                 name: name,
                 inplayerjournals: "all",
@@ -109,49 +131,37 @@ var TwitchJoinCommand = {
                 _type: "graphic",
             });
             token = _.find(objects, function (obj) {
-                return obj.get("name").toLowerCase().startsWith(name);
+                return obj.get("name").toLowerCase().startsWith(name.toLowerCase());
             });
             if (token === undefined) {
                 token = this.createToken(name);
             }
         }
 
+        if (!token) {
+            return;
+        }
+
         token.set("represents", character.id);
 
-        var attribute = findObjs({
-            _type: "attribute",
-            _characterid: character.id,
-            name: "hp"
-        })[0];
-        if (token !== undefined && attribute !== undefined) {
-            token.set("bar1_link", attribute.get("_id"));
-        }
-        if (token !== undefined) {
-            var hp = args["--hp"];
-            if (hp === undefined) {
-                hp = 10;
-            }
-            token.set("bar1_max", hp);
-            token.set("bar1_value", hp);
-        }
-        attribute = findObjs({
-            _type: "attribute",
-            _characterid: character.id,
-            name: "ac"
-        })[0];
-        if (token !== undefined && attribute !== undefined) {
-            //attribute.set("current", attribute.get("max"));
-            token.set("bar2_link", attribute.get("_id"));
-        }
-        if (token !== undefined) {
-            var ac = args["--ac"];
-            if (ac === undefined) {
-                ac = 10;
-            }
-            token.set("bar2_max", ac);
-            token.set("bar2_value", ac);
-        }
+        this.setAttribute(msg, character, token, "bar1", "hp", args["--hp"], 10);
+        this.setAttribute(msg, character, token, "bar2", "ac", args["--ac"], 10);
+
         setDefaultTokenForCharacter(character, token);
+
+        objects = findObjs({
+            _pageid: Campaign().get("playerpageid"),
+            _type: "graphic",
+        });
+        var startLocation = _.find(objects, function (obj) {
+            return obj.get("name").toLowerCase().startsWith("!roll20 join");
+        });
+        if (startLocation) {
+            token.set("top", startLocation.get("top"));
+            token.set("left", startLocation.get("left"));
+        } else {
+            Twitch.write("DEBUG: no start token", msg.who, "", "DEBUG");
+        }
 
         const style = "margin-left: 0px; overflow: hidden; background-color: #fff; border: 1px solid #000; padding: 5px; border-radius: 5px;";
         sendChat("!roll20 join", '<div style="' + style + '">Player <b>' + name +
@@ -159,13 +169,12 @@ var TwitchJoinCommand = {
     },
 
     usage: function(detailed, lineSeparator = "\n") {
-        var message = "!roll20 join" + lineSeparator;
-        /*
+        var message = "!roll20 join: Add or update your character to the game. '!roll20 help' for more information.";
         if (detailed) {
-            message += "    $dice: Dice to join (eg. d20, 2d10, d6+2)" + lineSeparator;
-            message += "    --name | -n: Start of character name to join for" + lineSeparator;
+            message += lineSeparator;
+            message += "    --hp: Set your PC's Hit Points" + lineSeparator;
+            message += "    --ac: Set your PC's Armor Class" + lineSeparator;
         }
-        */
         return (message);
     }
 };
