@@ -1,10 +1,12 @@
-/* exported TwitchMoveCommand */
-/* global Twitch:true */
-/* global TwitchAdminCommand:true */
 
-var TwitchMoveCommand = {
+class _TwitchMoveCommand {
 
-    parseArgs: function(args) {
+    constructor() {
+        // empty
+    }
+
+
+    parseArgs(args) {
         var parsed = {"_": []},
             x, y;
 
@@ -38,13 +40,13 @@ var TwitchMoveCommand = {
                 } else {
                     parsed["--up"] = Math.abs(y);
                 }
-                parsed["_"] = [args[0]];
+                parsed["_"] = [args[1]];
                 return parsed;
             }
         }
 
         /* eslint-disable no-undef */
-        parsed = Twitch.parse({
+        parsed = Arg.parse({
             "--help": Boolean,
             "--left": Number,
             "--right": Number,
@@ -54,19 +56,17 @@ var TwitchMoveCommand = {
             "-r": "--right",
             "-u": "--up",
             "-d": "--down"
-        }, options = {
+        }, {
             argv: args,
             permissive: true
         });
         /* eslint-enable no-undef */
 
         return parsed;
-    },
+    }
 
 
-    run: function(msg, params, args) {
-        var name, x, y;
-
+    async run(msg, params, args) {
         try {
             args = this.parseArgs(args);
         } catch (e) {
@@ -78,56 +78,70 @@ var TwitchMoveCommand = {
             return;
         }
 
-        name = args["_"][0];
-        if (!name) {
+        let wasdRE = /^[wasd]+$/
+        let startIndex = 0;
+        let name = args["_"][0];
+        if (!name || wasdRE.test(name)) {
             name = params["username"];
+        } else {
+            startIndex = 1;
         }
-        name = name.toLowerCase();
-        var allowed = TwitchAdminCommand.checkPermission(msg, params["username"], name, "move");
-        if (!allowed) {
-            log("DEBUG: permission denied");
+        if (!Twitch.checkPermission(params["username"], name, "move")) {
+            console.log("DEBUG: 'move' permission denied");
             return;
         }
 
-        var object,
-            objects = findObjs({
-                _pageid: Campaign().get("playerpageid"),
-                _type: "graphic",
+        let character = Twitch.getCharacter(name);
+        if (!character) {
+            console.log("arrow: character for name not found: " + name);
+            return;
+        }
+        let token = Twitch.getCharacterToken(character.name);
+        if (token === undefined) {
+            console.log("move: token for name not found: " + name);
+            return;
+        }
+
+        let prevX = token.data.x,
+            prevY = token.data.y;
+
+        for (let i = startIndex; i < args["_"].length; i++) {
+            let deltaX = 0,
+                deltaY = 0;
+
+            for (let c = 0; c < args["_"][i].length; c++) {
+                if (args["_"][i][c] === "w") {
+                    deltaY = deltaY - 1;
+                } else if (args["_"][i][c] === "s") {
+                    deltaY = deltaY + 1;
+                } else if (args["_"][i][c] === "a") {
+                    deltaX = deltaX - 1;
+                } else if (args["_"][i][c] === "d") {
+                    deltaX = deltaX + 1;
+                }
+            }
+
+            let nextX = prevX + deltaX * canvas.grid.w,
+                nextY = prevY + deltaY * canvas.grid.h;
+
+            if (token.checkCollision({x: nextX, y: nextY })) {
+                break;
+            }
+
+            await token.update({
+                x: nextX,
+                y: nextY
             });
-        object = _.find(objects, function (obj) {
-            return obj.get("name").toLowerCase().startsWith(name);
-        });
-        if (object === undefined) {
-            Twitch.rawWrite("Usage: (name not found): " + name, msg.who, "", "twitch move");
-            return;
+            prevX = nextX;
+            prevY = nextY;
         }
 
-        var deltaX = 0;
-        if (args["--left"]) {
-            deltaX = 0 - args["--left"];
-        }
-        if (args["--right"]) {
-            deltaX = args["--right"];
-        }
-        var deltaY = 0;
-        if (args["--up"]) {
-            deltaY = 0 - args["--up"];
-        }
-        if (args["--down"]) {
-            deltaY = args["--down"];
-        }
+        Twitch.sendScenePan();
 
-        x = object.get("left");
-        y = object.get("top");
-        x = x + deltaX * 70;
-        y = y + deltaY * 70;
+        Twitch.addToBiography(character, "move", msg);
+    }
 
-        sendPing(x, y, Campaign().get('playerpageid'), undefined, false);
-        object.set("top", y);
-        object.set("left", x);
-    },
-
-    usage: function(detailed, lineSeparator = "\n") {
+    usage(detailed, lineSeparator = "\n") {
         var message = "move $name [--left $n --right $n] [--up $n --down $n]" + lineSeparator;
         if (detailed) {
             message += "    $name: Object name to move, case insensitive" + lineSeparator;
@@ -136,4 +150,4 @@ var TwitchMoveCommand = {
         }
         return message;
     }
-};
+}

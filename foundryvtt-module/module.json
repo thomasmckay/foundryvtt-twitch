@@ -1,0 +1,14 @@
+{
+    "name": "foundryvtt-twitch",
+    "title": "FoundryVTT & Twitch Chat Integration",
+    "description": "Provides integration with Twitch to allow chat interaction and play.",
+    "version": "0.0.1",
+    "author": "thomasmckay",
+    "systems": ["dnd5e"],
+    "scripts": ["build.js"],
+    "socket": true,
+    "minimumCoreVersion": "0.5.1",
+    "url": "https://github.com/thomasmckay/foundryvtt-twitch",
+    "manifest": "https://github.com/thomasmckay/foundryvtt-twitch/raw/master/foundryvtt-module/build/module.json",
+    "download": "https://github.com/thomasmckay/foundryvtt-twitch/raw/master/foundryvtt-module/build.zip"
+}

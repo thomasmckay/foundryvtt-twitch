@@ -1,10 +1,28 @@
 
 var options = {
     options: {
+        // May be either "foundryvtt" or "roll20"
+        platform: "roll20",
         debug: true
     },
     connection: {
         reconnect: true
+    },
+    foundryvtt: {
+        // Server URL including port
+        server: "http://192.168.1.49:30000",
+        // Game world name
+        world: "faerun",
+        // User name id
+        username: "k8tiJH3DebQpPpJN",
+        // User password
+        password: "foundry",
+        // Folder under 'public' for saving images (folder must exist)
+        images: "twitch",
+        // File to write play logs (folder containg file must exist)
+        logfile: "twitch.log",
+        // Player to set as owner of all tokens
+        token_owner: "PintAndPie"
     },
     twitch: {
         // Twitch user name:
@@ -25,6 +43,11 @@ var options = {
         // The Roll20 ID may be found in the URL of your game:
         // https://app.roll20.net/campaigns/details/<roll20 id>/torchbearer
         campaign: "<roll20 id>"
+    },
+    foundryvtt: {
+        // FoundryVTT endpoint
+        //
+        server: "http://localhost:30000",
     },
     dndbeyond: {
         // In browser, visit a character page with Chrome DevTools open. Next, right click
