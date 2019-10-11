@@ -2,21 +2,15 @@
   "name": "roll20-twitch",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
-    "chance": "^1.0.11",
-    "electron": "^4.1.3",
-    "eslint": "^4.9.0",
-    "eslint-config-airbnb": "^16.0.0",
-    "eslint-plugin-import": "^2.7.0",
-    "eslint-plugin-jsx-a11y": "^6.0.2",
-    "jslint": "^0.12.1",
-    "nightmare": "^3.0.1",
-    "prop-types": "*",
-    "tmi.js": "^1.2.1",
-    "ws": "^3.2.0"
-  },
-  "scripts": {
-    "start": "node build/build.js",
-    "test": "node roll20_test.js"
+    "child_process": "^1.0.2",
+    "fs": "0.0.1-security",
+    "http": "0.0.1-security",
+    "request": "^2.88.2",
+    "twitch": "^4.1.0-pre.10",
+    "twitch-chat-client": "^4.1.0-pre.10",
+    "twitch-pubsub-client": "^4.1.0-pre.10",
+    "ws": "^3.3.3"
   }
 }

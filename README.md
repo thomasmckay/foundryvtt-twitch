@@ -32,3 +32,38 @@ const clearTurnOrder = () => Campaign().set({turnorder:'[]'});
 const sorter_asc = (a, b) => b.pr - a.pr;
 const sorter_desc = (a, b) => a.pr - b.pr;
 const sortTurnOrder = (sortBy = sorter_desc) => Campaign().set({turnorder: JSON.stringify(getTurnArray().sort(sortBy))});
+
+FoundryVTT
+
+cd twitch-bot
+make build && node build/foundryvtt-build.js
+
+cd foundryvtt-module
+make install
+
+cd ~/programs/fvtt/fvtt-0.6.0
+nvm use v13.11.0
+node resources/app/main.js
+
+CSS
+
+/home/thomasmckay/programs/fvtt/fvtt-0.6.0/resources/app/public/css/style.css
+
+#sidebar / width: 500px;
+#chat-log .message / font-size: 24px;
+
+
+NOTES
+
+actor = game.actors.entities.find(actor => { return actor.name === "PintAndPie"; });
+token = canvas.tokens.placeables.find(t => t.name.toLowerCase() === "PintAndPie".toLowerCase());
+actor.rollAbility("str")  <-- raises dialog
+
+TOKENS
+
+https://www.syncrpg.com/token/
+
+NODE
+
+nvm use v14.4.0
+npm install twitch@next twitch-pubsub-client@next twitch-chat-client@next

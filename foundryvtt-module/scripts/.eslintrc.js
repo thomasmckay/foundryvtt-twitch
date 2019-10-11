@@ -7,16 +7,7 @@ module.exports = {
     "globals": {
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
-        "_": false,
-        "createObj": false,
-        "sendChat": false,
-        "Shell": false,
-        "on": false,
-        "log": false,
-        "findObjs": false,
-        "Campaign": false,
-        "sendPing": false,
-        "getObj": false
+        "game": false
     },
     "parserOptions": {
         "ecmaVersion": 2018
@@ -147,7 +138,7 @@ module.exports = {
         "no-caller": "error",
         "no-catch-shadow": "error",
         "no-confusing-arrow": "error",
-        "no-console": "error",
+        "no-console": "off",
         "no-continue": "off",
         "no-div-regex": "error",
         "no-duplicate-imports": "error",
