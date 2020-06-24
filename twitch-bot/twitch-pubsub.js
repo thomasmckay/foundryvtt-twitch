@@ -123,7 +123,7 @@ import HTTPServ from "http";
     await chatClient.connect();
 
     chatClient.onPrivmsg((channel, user, message) => {
-        foundryVTT.processMessage(user, message);
+        foundryVTT.processMessage(channel, user, message);
     });
 
     chatClient.onSub((channel, user) => {
@@ -179,7 +179,7 @@ import HTTPServ from "http";
             "message_id": "4f1d7512-345c-5245-95e8-250a783d40ea"
         }
     }
-        */
+    */
     pubSubClient.onBits(channel._data.id, (message) => {
         console.log(`${JSON.stringify(message, null, 4)}`);
     });
@@ -201,7 +201,7 @@ import HTTPServ from "http";
         }
 
 
-        async processMessage(userName, message) {
+        async processMessage(channel, userName, message) {
             const tokens = message.split(" ");
             const fvttCommand = this.getCommand(tokens[0]);
             const args = tokens.slice(1);
@@ -214,7 +214,11 @@ import HTTPServ from "http";
             console.log(`${JSON.stringify(user, null, 4)}`);
 
             const command = fvttCommand.run(user, args);
-            broadcast(command.substring(0, 500))
+            if (command.startsWith("!twitch")) {
+                broadcast(command.substring(0, 500));
+            } else if (command) {
+                chatClient.say(channel, `@${userName} ${command}`);
+            }
         }
     }
     const foundryVTT = new FoundryVTT();
@@ -273,7 +277,41 @@ import HTTPServ from "http";
 
     // !help
     //
-    new Command("help");
+    class HelpCommand extends Command {
+        run(user, args) {
+            let message = "",
+                command;
+
+            if (args.length == 1) {
+                command = args[0];
+            } else {
+                command = "help";
+            }
+
+            if (command === "!roll" || command === "roll") {
+                message = "Roll the dice! // !roll d20 // !roll 2d20+4"
+            } else if (command === "!join" || command === "join") {
+                message = "Join in the fun! Create 2nd level character with your Twitch name at dndbeyond.com, then join campaign https://ddb.ac/campaigns/join/5507601294619987 // !join // !join ac=18 hp=20"
+            } else if (command === "!char" || command === "char" || command === "!character" || command === "character") {
+                message = "Update your characters details // !char ac=18 hp=20"
+            } else if (command === "!play" || command === "play") {
+                message = "Play a character! NPCs and monsters are yours to control // !play kobold"
+            } else if (command === "!leave" || command === "leave") {
+                message = "Leave, removing your player token. // !leave"
+            } else if (command === "!move" || command === "move") {
+                message = "Move yourself! WASD your way around // !move wwee // !move ww aa ww"
+            } else if (command === "!arrow" || command === "arrow") {
+                message = "Draw arrow lines! WASD to location // !arrow wwee // !arrow ww aa ww"
+            } else if (command === "!rp" || command === "rp") {
+                message = "In-character chat shown live! // !rp *raises pint glass* to us! // !rp *sits at table*<br>pie of the day?"
+            } else {
+                message = "!join, !roll, !play, !char, !rp, !move, !arrow, !dndbeyond, !leave"
+            }
+
+            return message;
+        }
+    }
+    new HelpCommand("help");
 
 
     // !join

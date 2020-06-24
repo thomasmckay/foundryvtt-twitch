@@ -1,5 +1,5 @@
 
-var options = {
+export const config = {
     options: {
         // May be either "foundryvtt" or "roll20"
         platform: "roll20",
@@ -18,7 +18,7 @@ var options = {
         // User password
         password: "foundry",
         // Folder under 'public' for saving images (folder must exist)
-        images: "twitch",
+        images: "~/.local/share/FoundryVTT/Data/images/twitch",
         // File to write play logs (folder containg file must exist)
         logfile: "twitch.log",
         // Player to set as owner of all tokens
@@ -29,13 +29,46 @@ var options = {
         // https://www.twitch.tv/<user>
         //
         username: "<user>",
+
         // Twitch oauth token generated at https://twitchapps.com/tmi/
         //
         password: "oauth:<oauth>",
+
         // One or more channels to monitor chat. Most commonly the
         // same as the 'username'
         //
-        channels: ["#<channel>"]
+        channels: ["<channel>"],
+
+        // Chat bot command prefix (eg. !fvtt or !X)
+        command: "!fvtt",
+
+        // Twitch oauth token generated at https://twitchapps.com/tmi/
+        // The OAuth access_token is retrieved at startup
+        // Twitch client at https://dev.twitch.tv/console/apps
+        //
+        // To get 'code' visit
+        //     "https://id.twitch.tv/oauth2/authorize" +
+        //     "?client_id=" + config.twitch.clientid +
+        //     "&redirect_uri=http://localhost" +
+        //     "&response_type=code" +
+        //     "&scope=chat:read+chat:edit"
+        // and watch redirect response.
+        //
+        password: "oauth:i3y...0ud",    // PlayByChat
+        clientid: "scr...ym2",
+        clientsecret: "h1f...two",
+        channel: {
+            code: "yt1...api",
+            "access_token": "256...4u5",
+            "refresh_token": "jfw...gj2",
+            "expires_in": 1591836993113
+        },
+        bot: {
+            code: "npm...1t5",
+            "access_token": "ye9...f0o",
+            "refresh_token": "qli...5i1",
+            "expires_in": 1591849496736
+        }
     },
     roll20: {
         username: "<user>",
@@ -43,11 +76,6 @@ var options = {
         // The Roll20 ID may be found in the URL of your game:
         // https://app.roll20.net/campaigns/details/<roll20 id>/torchbearer
         campaign: "<roll20 id>"
-    },
-    foundryvtt: {
-        // FoundryVTT endpoint
-        //
-        server: "http://localhost:30000",
     },
     dndbeyond: {
         // In browser, visit a character page with Chrome DevTools open. Next, right click
@@ -69,7 +97,3 @@ var options = {
         }
     ]
 };
-
-// Required for external reference, do not change
-//
-module.exports.config = config;
