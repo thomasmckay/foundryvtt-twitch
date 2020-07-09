@@ -1,0 +1,23 @@
+{
+    "colors": {
+        "followers": 11,
+        "moobot": 12,
+        "players": 9,
+        "subscribers": 9,
+        "vips": 9
+    },
+    "followers": [],
+    "options": {
+        "debug": true
+    },
+    "players": [
+        "brokenfocus"
+    ],
+    "subscribers": [
+        "blanepatrick",
+        "playbychat"
+    ],
+    "vips": [
+        "blanepatrick"
+    ]
+}
