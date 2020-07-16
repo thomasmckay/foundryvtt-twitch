@@ -257,6 +257,61 @@ import HTTPServ from "http";
                 });
             });
         }
+
+
+        downloadDndbeyond(url) {
+            new Promise(function(resolve, reject) {
+                request({
+                    url: url,
+                    // ???? not needed any more?
+                    headers: {
+                        cookie: config.dndbeyond.cookie,
+                    }
+                }, function(error, response, body) {
+                    if (error) {
+                        console.log("ERROR: downloadJson: " + error);
+                        return false;
+                    }
+                    resolve(body);
+                });
+            }).then(function(body) {
+                return body;
+                /*
+                try {
+                    results = JSON.parse(body);
+                } catch (e) {
+                    console.log("ERROR: downloadJson: failed to parse json: " + body);
+                    return false;
+                }
+
+                return results;
+                */
+            })
+        }
+
+
+        saveCampaignCharacters() {
+        }
+
+
+        saveCharacterJson(link, name) {
+            let json = this.downloadDndbeyond(link);
+
+            if (!json) {
+                return false;
+            }
+
+            console.log("???? " + config.foundryvtt.images + "/" + name + ".json");
+            fs.writeFile(config.foundryvtt.images + "/" + name + ".json",
+                 body, (err) => {
+                     if (err) {
+                         console.log("ERROR: saveCharacterJson: failed to save json: " + err);
+                         return false;
+                     }
+                 }
+            );
+            return true;
+        }
     }
 
 
@@ -277,6 +332,16 @@ import HTTPServ from "http";
 
     // !help
     //
+    class GenConCommand extends Command {
+        run(user, args) {
+            return "Gen Con 2020 Online: https://www.gencon.com/event_finder?search=FoundryVTT";
+        }
+    }
+    new GenConCommand("gencon");
+
+
+    // !help
+    //
     class HelpCommand extends Command {
         run(user, args) {
             let message = "",
@@ -291,7 +356,7 @@ import HTTPServ from "http";
             if (command === "!roll" || command === "roll") {
                 message = "Roll the dice! // !roll d20 // !roll 2d20+4"
             } else if (command === "!join" || command === "join") {
-                message = "Join in the fun! Create 2nd level character with your Twitch name at dndbeyond.com, then join campaign https://ddb.ac/campaigns/join/5507601294619987 // !join // !join ac=18 hp=20"
+                message = "Join in the fun! Create 2nd level character with your Twitch name at dndbeyond.com, then join campaign " + config.dndbeyond.campaign + " // !join"
             } else if (command === "!char" || command === "char" || command === "!character" || command === "character") {
                 message = "Update your characters details // !char ac=18 hp=20"
             } else if (command === "!play" || command === "play") {
@@ -316,9 +381,21 @@ import HTTPServ from "http";
 
     // !join
     //
+    // "https://character-service.dndbeyond.com/character/v3/character/" + characterId
     class JoinCommand extends Command {
         run(user, args) {
             this.saveProfileImage(user);
+
+            if (args.length > 0 && args[0].startsWith("https://www.dndbeyond.com/profile/")) {
+                let url = "https://character-service.dndbeyond.com/character/v3/character/" +
+                    args[0].split("/")[args[0].split("/").length - 1];
+                console.log("????? " + url);
+                if (this.saveCharacterJson(url, user.display_name)) {
+                    console.log("DEBUG: saved json " + user.display_name);
+                } else {
+                    console.log("DEBUG: failed to save json " + user.display_name);
+                }
+            }
 
             return `!twitch [#####,username=${user.display_name}] ${this.name} ${args.join(" ")}`;
         }

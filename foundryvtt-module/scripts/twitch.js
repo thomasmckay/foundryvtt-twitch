@@ -3,7 +3,8 @@
 class _Twitch {
 
 
-    constructor() {
+    constructor(testing) {
+        this.testing = testing;
         this.socket = undefined;
 
         this.TWITCH_COMMAND = "!twitch";
@@ -26,31 +27,32 @@ class _Twitch {
 
 
         // Hooks?
-        this.socket = new WebSocket("ws://127.0.0.1:30001");
-        this.socket.onopen = function(e) {
-            console.log("################ onopen");
-        };
+        if (!this.testing) {
+            this.socket = new WebSocket("ws://127.0.0.1:30001");
+            this.socket.onopen = function(e) {
+                console.log("################ onopen");
+            };
 
 
-        this.socket.onmessage = function(event) {
-            console.log(`################ onmessage: ${event.data}`);
-            Twitch.handleChatMessage(event.data);
-        };
+            this.socket.onmessage = function(event) {
+                console.log(`################ onmessage: ${event.data}`);
+                Twitch.handleChatMessage(event.data);
+            };
 
 
-        this.socket.onclose = function(event) {
-            if (event.wasClean) {
-                console.log(`################# onclose: Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-            } else {
-                console.log('################# onclose: Connection died');
-            }
-        };
+            this.socket.onclose = function(event) {
+                if (event.wasClean) {
+                    console.log(`################# onclose: Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+                } else {
+                    console.log('################# onclose: Connection died');
+                }
+            };
 
 
-        this.socket.onerror = function(error) {
-            console.log(`################## onerror: ${error.message}`);
-        };
-
+            this.socket.onerror = function(error) {
+                console.log(`################## onerror: ${error.message}`);
+            };
+        }
 
         Hooks.on("chatMessage", (app, message, data) => {
             console.log("chatMessage hook: " + message);
@@ -287,8 +289,7 @@ class _Twitch {
 
 
     async writeEmote(name, message, override) {
-        let character = Twitch.getCharacter(name),
-            token = Twitch.getCharacterToken(character.name),
+        let token = Twitch.getCharacterToken(name),
             user = Twitch.getUser(name);
         let chatMessage = await ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: token }),
@@ -321,13 +322,13 @@ class _Twitch {
     }
 
 
-    _checkPermission(feats, username, character, command) {
+    _checkPermission(feats, userName, characterName, command) {
         let permissions = Twitch.htmlToText(feats).toLowerCase().split("\n");
         let selfPermission = permissions.find(permission => permission.toLowerCase().startsWith("self:"));
         let allPermission = permissions.find(permission => permission.toLowerCase().startsWith("all:"));
-        let charPermission = permissions.find(permission => permission.toLowerCase().startsWith(character.toLowerCase() + ":"));
+        let charPermission = permissions.find(permission => permission.toLowerCase().startsWith(characterName.toLowerCase() + ":"));
 
-        if (username === character && selfPermission && selfPermission.indexOf(command.toLowerCase()) != -1) {
+        if (userName === characterName && selfPermission && selfPermission.indexOf(command.toLowerCase()) != -1) {
             return true;
         }
         if (allPermission && allPermission.indexOf(command.toLowerCase()) != -1) {
@@ -340,10 +341,10 @@ class _Twitch {
     }
 
 
-    checkPermission(username, character, command) {
+    checkPermission(userName, characterName, command) {
         let permitted = false;
-        if (!character) {
-            character = username;
+        if (!characterName) {
+            characterName = userName;
         }
 
         let twitchCharacter = game.actors.entities.find(actor => { return actor.name === "Twitch"; });
@@ -352,13 +353,17 @@ class _Twitch {
             return false;
         }
         let userPermission = twitchCharacter.items.find(item => item.type === "feat" &&
-                                                        item.name.toLowerCase().startsWith(username.toLowerCase()));
+                                                        item.name.toLowerCase().startsWith(userName.toLowerCase()));
 
 
         if (userPermission) {
-            permitted = this._checkPermission(userPermission.data.data.description.value, username, character, command);
+            let data = userPermission.data.data;
+            if (!data) {
+                data = userPermission.data;
+            }
+            permitted = this._checkPermission(data.description.value, userName, characterName, command);
         }
-        if (!permitted) {
+        if (!permitted && userName === characterName) {
             let allPermission = twitchCharacter.items.find(item => item.type === "feat" &&
                                                            item.name.toLowerCase().startsWith("All".toLowerCase()));
 
@@ -366,7 +371,11 @@ class _Twitch {
                 console.log("ERROR: User permission lookup failed - No 'feat' found");
                 return false;
             }
-            permitted = this._checkPermission(allPermission.data.data.description.value, username, character, command);
+            let data = allPermission.data.data;
+            if (!data) {
+                data = allPermission.data;
+            }
+            permitted = this._checkPermission(data.description.value, userName, characterName, command);
         }
 
         return permitted
@@ -378,12 +387,6 @@ class _Twitch {
         }
     }
 
-    // static socketListeners(socket) {
-    //     game.socket.on("module.foundryvtt-twitch", data => {
-    //         console.log("????? data=" + data);
-    //         this.scenePane = data;
-    //     });
-    // }
 
     saveScenePan() {
         this.scenePan = canvas.scene._viewPosition;
@@ -412,6 +415,12 @@ class _Twitch {
     }
 }
 
-Twitch = new _Twitch();
+
+let TESTING = false;
+if (typeof process !== "undefined" && process) {
+    TESTING = process.env.TESTING;
+}
+console.log("??????? TESTING=" + TESTING);
+Twitch = new _Twitch(TESTING);
 
 Hooks.on("ready", Twitch.onReady);

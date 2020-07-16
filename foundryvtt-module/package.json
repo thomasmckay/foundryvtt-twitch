@@ -1,0 +1,9 @@
+{
+    "scripts": {
+        "test": "node_modules/mocha/bin/mocha"
+    },
+    "devDependencies": {
+        "mocha": "^8.0.1",
+        "sinon": "^9.0.2"
+    }
+}

@@ -4,7 +4,6 @@
 /* global Twitch:true */
 /* global TwitchAdminCommand:true */
 
-
 class _TwitchJoinCommand {
 
     constructor() {
