@@ -52,6 +52,11 @@ class _TwitchCharacterCommand {
                 characterUpdates["data.abilities." + ability + ".value"] = parseInt(args[ability]) || 10;
             }
         });
+        ["prc", "inv", "ins"].forEach((ability) => {
+            if (args[ability]) {
+                characterUpdates["data.skills." + ability + ".passive"] = parseInt(args[ability]) || 10;
+            }
+        });
 
         if (characterUpdates !== {}) {
             token = await token.actor.update(characterUpdates);
@@ -131,3 +136,11 @@ class _TwitchCharacterCommand {
         return (message);
     }
 }
+
+
+
+/*
+Hooks.on("updateActor", (actor, updates, options, userId) => {
+    actor.data.data.skills.prc.passive = 111;
+});
+*/

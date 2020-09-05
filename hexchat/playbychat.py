@@ -117,47 +117,48 @@ def get_color(ctable, nick):
     # permanent colour
     pcolor = None
     if nick in config["colors"]:
-        pcolor = config["colors"][nick]
-        omsg("AA", "debug")
+        color = config["colors"][nick]
     else:
         for category in ["followers", "vips", "subscribers", "players"]:
             if nick in config[category]:
-                omsg("BB", "debug")
-                pcolor = config["colors"][category]
+                color = config["colors"][category]
 
-    # iterate backwards through ctable
-    for i in range(len(ctable)-1,-1,-1):
-        c, n = ctable[i]
-        if pcolor != None and c == pcolor: # if we found this nick's permcolor
-            # steal the color from whoever's using it
-            ctable.pop(i)
-            ctable.append((c, nick))
-            dmsg("1: " + str(c) + " " + nick)
-            return c
-        elif n == nick:
-            color = c
-            # if this nick has a color in the table different from its permacolor
-            # change the color in the color table
-            if pcolor != None and c != pcolor:
-                ctable.pop(i)
-                c = color = pcolor
-                ctable.append((c, nick))
-                break
-            else:
-                # push nick to top of stack if it's in there
-                dmsg(nick + "'s color was found in the colortable for this channel.", "GETCOLOR")
-                ctable.append(ctable.pop(i))
-                break
-
-    if color == None:
-        # otherwise, add a new entry
-        c, n = ctable.pop(0)
-        n = nick
-        ctable.append((c,n))
-        color = c
-        dmsg("A new entry was added to this colortable: " + nick + " -> " + str(c), "GETCOLOR")
-    dmsg("Resultant color: " + str(color), "GETCOLOR")
     return color
+
+
+    # # iterate backwards through ctable
+    # for i in range(len(ctable)-1,-1,-1):
+    #     c, n = ctable[i]
+    #     if pcolor != None and c == pcolor: # if we found this nick's permcolor
+    #         # steal the color from whoever's using it
+    #         ctable.pop(i)
+    #         ctable.append((c, nick))
+    #         dmsg("1: " + str(c) + " " + nick)
+    #         return c
+    #     elif n == nick:
+    #         color = c
+    #         # if this nick has a color in the table different from its permacolor
+    #         # change the color in the color table
+    #         if pcolor != None and c != pcolor:
+    #             ctable.pop(i)
+    #             c = color = pcolor
+    #             ctable.append((c, nick))
+    #             break
+    #         else:
+    #             # push nick to top of stack if it's in there
+    #             dmsg(nick + "'s color was found in the colortable for this channel.", "GETCOLOR")
+    #             ctable.append(ctable.pop(i))
+    #             break
+
+    # if color == None:
+    #     # otherwise, add a new entry
+    #     c, n = ctable.pop(0)
+    #     n = nick
+    #     ctable.append((c,n))
+    #     color = c
+    #     dmsg("A new entry was added to this colortable: " + nick + " -> " + str(c), "GETCOLOR")
+    # dmsg("Resultant color: " + str(color), "GETCOLOR")
+    # return color
 
 
 ######## XCHAT CALLBACKS ########
@@ -341,7 +342,7 @@ def is_color3_tab(our_ctx):
     return False
 
 
-def message_callback(word, word_eol, userdata, attributes):
+def xxmessage_callback(word, word_eol, userdata, attributes):
     """"This function is called every time a new 'Channel Message' or
     'Channel Action' (like '/me hugs elhaym') event is going to occur.
     Here, we change the event in the way we desire then pass it along."""
@@ -394,24 +395,57 @@ def message_callback(word, word_eol, userdata, attributes):
         return hexchat.EAT_NONE
 
 
-def change_nick_callback(word, word_eol, userdata, attributes):
-    # Considering that we have a limited amount of colours,
-    # we don't need to occupy a new entry in the table if someone changes their nick.
-    # We replace their old entry with the new nick.
-    oldnick, newnick = word
+
+def message_callback(word, word_eol, userdata, attributes):
+    global chancolortable
+    global defaultcolortable
+
+    event_name = userdata
+    nick = word[0]
+    nick = hexchat.strip(nick, -1, 1) # remove existing colours
+
+    # This bit prevents infinite loops.
+    # Assumes nicks will never normally begin with "\017".
+    if nick.startswith(ec["o"]):
+        # We already did this event and are seeing it again, because this function gets triggered by events that even it generates.
+        dmsg("Already-processed nick found: " + repr(nick), "LOOP")
+        return hexchat.EAT_NONE
+
+    dmsg("The time attribute for this event is {}".format(attributes.time), "PRINTEVENT")
+    dmsg("COLORTABLE length = %d" % len(chancolortable), "PRINTEVENT")
+
     chan = hexchat.get_info("channel")
     net = hexchat.get_info("network")
+    ctx = hexchat.get_context()
+    if net not in chancolortable:
+        # create an empty network entry
+        dmsg("Making new network "+net, "COLORTABLE")
+        chancolortable[net] = {}
+        dmsg("chancolortable: %s" % (chancolortable))
+    if chan not in chancolortable[net]:
+        # make new color table
+        dmsg("Making new color table for "+chan, "COLORTABLE")
+        chancolortable[net][chan] = defaultcolortable[:]
+        dmsg("chancolortable: %s" % (chancolortable))
+    else:
+        dmsg("Found COLORTABLE of length "+str(len(chancolortable[net][chan]))+" for channel "+chan+" on network "+net, "COLORTABLE")
+    ctable = chancolortable[net][chan]
+    dmsg("COLORTABLE for "+chan+" on "+net+" = " + str(ctable), "COLORTABLE")
+    color = get_color(ctable, nick)
 
-    net_table = chancolortable.get(net)
-    if net_table:
-        ctable = net_table.get(chan)
-        if ctable:
-            for i, (color, nick) in enumerate(ctable):
-                if nick and nick.lower() == oldnick.lower():
-                    ctable[i] = (color, newnick.lower())
-                    dmsg("Nick change, table updated: {0}{1}{3} -> {0}{2}{3}".format(col(color), oldnick, newnick, ec['o']), "NICKCHANGE")
-                    return hexchat.EAT_NONE
-    return hexchat.EAT_NONE
+    if not color:
+        return hexchat.EAT_NONE
+
+    newnick = ecs('o') + col(color) + nick
+    word[0] = newnick
+    #word[1] = "\002\026{0}{1}".format(col(color), word[1])
+    word[1] = "\002\026{0}{1}".format(col(color), word[1])
+    dmsg('Old nick: %s - New Nick: %s' % (nick, newnick))
+    hexchat.emit_print(event_name, *word, time=attributes.time)
+    #hexchat.emit_print(event_name, "\002\026{0}{1}".format(color, word_eol))
+    if not is_color3_tab(ctx):
+        hexchat.command("gui color 2") # required since HexChat 2.12.4
+    return hexchat.EAT_ALL
 
 
 ########## HOOK IT UP ###########
@@ -424,7 +458,6 @@ hexchat.hook_print_attrs("Channel Message", message_callback, "Channel Message",
 hexchat.hook_print_attrs("Channel Action", message_callback, "Channel Action", priority=hexchat.PRI_HIGHEST)
 hexchat.hook_print_attrs("Channel Msg Hilight", tab_hilight_callback, priority=hexchat.PRI_LOW)
 hexchat.hook_print_attrs("Channel Action Hilight", tab_hilight_callback, priority=hexchat.PRI_LOW)
-hexchat.hook_print_attrs("Change Nick", change_nick_callback, priority=hexchat.PRI_LOW)
 
 hexchat.hook_command("PLAYBYCHAT", playbychat_command, None, hexchat.PRI_NORM, "PLAYBYCHAT INFO:\t\nThis script will colourize nicks of users automatically, using a 'least-recently-used' algorithm (to avoid two people having the same colour).\n\nFriends' nicks can be assigned a specific colour with the SETCOLOR command, a list of colours can be shown with the COLORTABLE command, and this script can be enabled/disabled with the PLAYBYCHAT command (/PLAYBYCHAT on or /PLAYBYCHAT off).\n\nAlso '/NICEDEBUG on'")
 hexchat.hook_command("NICEDEBUG", nicedebug_command, None, hexchat.PRI_NORM, "Usage:\t/NICEDEBUG On to enable for all messages, /NICEDEBUG Off to disable, or to enable showing only debug messages with a certain description: '/NICEDEBUG description'. Remove a description: '/NICEDEBUG -description'")

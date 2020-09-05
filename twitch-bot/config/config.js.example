@@ -70,19 +70,18 @@ export const config = {
             "expires_in": 1591849496736
         }
     },
-    roll20: {
-        username: "<user>",
-        password: "<password">,
-        // The Roll20 ID may be found in the URL of your game:
-        // https://app.roll20.net/campaigns/details/<roll20 id>/torchbearer
-        campaign: "<roll20 id>"
-    },
     dndbeyond: {
         // In browser, visit a character page with Chrome DevTools open. Next, right click
         // on request in the "Network" tab, then Copy -> Copy as curl. Paste somewhere and
         // copy just the "cookie" Header content here. This may have to be periodically updated
         // to keep valid.
-        cookie: "<cookie>"
+        cookie: "<cookie>",
+
+        // Character ID of campaign owner. Used to fetch json which has campaign information.
+        character: 12345,
+
+        // Join link from campaign page
+        campaign: "https://ddb.ac/campaigns/join/12345678"
     },
     viewers: [
         // First in list is considered an admin in special cases

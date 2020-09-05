@@ -4,3 +4,4 @@ twitch-bot/node_modules
 roll20-scripts/login.txt
 roll20-scripts/node_modules
 **/*.retry
+hexchat/config/*.js

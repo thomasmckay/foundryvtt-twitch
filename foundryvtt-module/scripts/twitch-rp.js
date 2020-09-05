@@ -6,7 +6,6 @@ class _TwitchRPCommand {
 
 
     parseArgs (args) {
-        /* eslint-disable no-undef */
         var parsed = Arg.parse({
             "--help": Boolean,
             "--name": String,
@@ -15,7 +14,11 @@ class _TwitchRPCommand {
             argv: args,
             permissive: true
         });
-        /* eslint-enable no-undef */
+
+        if (parsed["_"].length !== 0 && parsed["_"][0].startsWith("@")) {
+            parsed["--name"] = parsed["_"][0].slice(1);
+            parsed["_"] = parsed["_"].slice(1);
+        }
 
         return parsed;
     }
@@ -37,9 +40,9 @@ class _TwitchRPCommand {
         if (!characterName) {
             characterName = params["username"];
         }
-        let character = Twitch.getCharacter(characterName);
+        let character = Twitch.getCharacterToken(characterName);
         if (!character) {
-            console.log("Character not found");
+            console.log("Character token not found");
             return;
         }
 
@@ -52,7 +55,6 @@ class _TwitchRPCommand {
             let message = args["_"].join(" ");
 
             Twitch.writeEmote(characterName, message);
-            Twitch.addToBiography(character, "rp", message);
         }
     }
 

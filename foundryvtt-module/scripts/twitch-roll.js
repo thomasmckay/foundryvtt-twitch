@@ -80,17 +80,14 @@ class _TwitchRollCommand {
             return;
         }
 
-        var dice;
-        if (args["_"].indexOf("#") > 0) {
-            dice = args["_"].slice(0, args["_"].indexOf("#")).join(" ");
-        } else {
-            dice = args["_"].join(" ");
-        }
+        var dice = args["_"][0];
+        var words = args["_"].slice(1);
 
         let rolled = this.roll(character, dice);
 
-        if (args["_"].indexOf("#") > 0) {
-            let arg = args["_"][args["_"].length - 1].toLowerCase();
+        if (words.length > 0) {
+            let arg = words[0].toLowerCase();
+            console.log("????? " + arg);
             if (arg === "initiative" || arg === "init") {
                 let combatant = game.combat.data.combatants.find(c => c.tokenId === token.id);
                 if (combatant) {
@@ -100,9 +97,9 @@ class _TwitchRollCommand {
         }
         Twitch.socket.send(Twitch.sprintf("@%s rolled (%s) %s = %s", character.name, rolled.formula, rolled.result, rolled.total));
         let message;
-        if (args["_"].indexOf("#") > 0) {
+        if (words.length > 0) {
             message = Twitch.sprintf("%s = %s<br> %s", rolled.formula, rolled.result,
-                                     args["_"].slice(args["_"].indexOf("#")).join(" "));
+                                     words.join(" "));
         } else {
             message = Twitch.sprintf("%s = %s", rolled.formula, rolled.result);
         }
