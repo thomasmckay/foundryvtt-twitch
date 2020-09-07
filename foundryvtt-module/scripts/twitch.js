@@ -25,34 +25,37 @@ class _Twitch {
 
         this.scenePan = {};
 
-
-        // Hooks?
-        if (!this.testing) {
-            this.socket = new WebSocket("ws://127.0.0.1:30001");
-            this.socket.onopen = function(e) {
-                console.log("################ onopen");
-            };
+        Hooks.on("chatMessage", (app, message, data) => {
+            console.log("chatMessage hook: " + message);
+            //Twitch.handleChatMessage(message);
+        });
+    }
 
 
-            this.socket.onmessage = function(event) {
-                console.log(`################ onmessage: ${event.data}`);
-                Twitch.handleChatMessage(event.data);
-            };
+    setupSocket() {
 
+        this.socket = new WebSocket("ws://" + game.settings.get("foundryvtt-twitch", "server") + ":" + game.settings.get("foundryvtt-twitch", "botport"));
 
-            this.socket.onclose = function(event) {
-                if (event.wasClean) {
-                    console.log(`################# onclose: Connection closed cleanly, code=${event.code} reason=${event.reason}`);
-                } else {
-                    console.log('################# onclose: Connection died');
-                }
-            };
+        this.socket.onopen = function(e) {
+            console.log("################ onopen");
+        };
 
+        this.socket.onmessage = function(event) {
+            console.log(`################ onmessage: ${event.data}`);
+            Twitch.handleChatMessage(event.data);
+        };
 
-            this.socket.onerror = function(error) {
-                console.log(`################## onerror: ${error.message}`);
-            };
-        }
+        this.socket.onclose = function(event) {
+            if (event.wasClean) {
+                console.log(`################# onclose: Connection closed cleanly, code=${event.code} reason=${event.reason}`);
+            } else {
+                console.log('################# onclose: Connection died');
+            }
+        };
+
+        this.socket.onerror = function(error) {
+            console.log(`################## onerror: ${error.message}`);
+        };
 
         Hooks.on("chatMessage", (app, message, data) => {
             console.log("chatMessage hook: " + message);
@@ -355,7 +358,6 @@ class _Twitch {
         let userPermission = twitchCharacter.items.find(item => item.type === "feat" &&
                                                         item.name.toLowerCase().startsWith(userName.toLowerCase()));
 
-
         if (userPermission) {
             let data = userPermission.data.data;
             if (!data) {
@@ -381,6 +383,7 @@ class _Twitch {
         return permitted
     }
 
+
     forceScenePan() {
         if (this.scenePane !== {}) {
             canvas.pan(this.scenePan);
@@ -388,12 +391,20 @@ class _Twitch {
     }
 
 
-    saveScenePan() {
+    // Macro to set scene view and send to other game sessions. In addition, confirm
+    // scene is set up.
+    //
+    async macroSaveScenePan() {
         this.scenePan = canvas.scene._viewPosition;
         game.socket.emit("module.foundryvtt-twitch", {
             type:  "scenePan",
             payload: this.scenePan
         });
+
+        if (game.combats.combats.length < 1) {
+            let combat = await game.combats.object.create({scene: canvas.scene._id, active: true});
+            await combat.activate();
+        }
     }
 
 
@@ -404,12 +415,66 @@ class _Twitch {
         });
     }
 
-    onReady() {
+
+    forceScenePan() {
+        if (this.scenePane !== {}) {
+            canvas.pan(this.scenePan);
+        }
+    }
+
+
+    async onReady() {
+
+	console.log("??????? charname=" + game.user.name);
+        if (game.user.name === "Gamemaster") {
+            Twitch.setupSocket();
+        }
+
         game.socket.on("module.foundryvtt-twitch", (data) => {
             console.log("Socket Message received " + data.type);
             if (data.type === "scenePan") {
                 Twitch.scenePan = data.payload;
                 Twitch.forceScenePan();
+            }
+        });
+
+
+        // Confirm or create Twitch actor
+
+
+        // Confirm or create Door actor
+    }
+
+
+    async onInit() {
+        await game.settings.register("foundryvtt-twitch", "server", {
+            name: "FoundryVTT Server",
+            scope: "world",
+            config: true,
+            type: String,
+            default: "127.0.0.1",
+            onChange: value => {
+                console.log(value)
+            }
+        });
+        await game.settings.register("foundryvtt-twitch", "gameport", {
+            name: "FoundryVTT Game Port",
+            scope: "world",
+            config: true,
+            type: String,
+            default: "30000",
+            onChange: value => {
+                console.log(value)
+            }
+        });
+        await game.settings.register("foundryvtt-twitch", "botport", {
+            name: "FoundryVTT Twitch Bot Port",
+            scope: "world",
+            config: true,
+            type: String,
+            default: "30001",
+            onChange: value => {
+                console.log(value)
             }
         });
     }
@@ -423,4 +488,6 @@ if (typeof process !== "undefined" && process) {
 console.log("??????? TESTING=" + TESTING);
 Twitch = new _Twitch(TESTING);
 
+
+Hooks.once("init", Twitch.onInit);
 Hooks.on("ready", Twitch.onReady);

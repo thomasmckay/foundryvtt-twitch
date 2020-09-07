@@ -356,7 +356,7 @@ import HTTPServ from "http";
             if (command === "!roll" || command === "roll") {
                 message = "Roll the dice! // !roll d20 // !roll 2d20+4"
             } else if (command === "!join" || command === "join") {
-                message = "Join in the fun! Create 2nd level character with your Twitch name at dndbeyond.com, then join campaign " + config.dndbeyond.campaign + " // !join"
+                message = `Join in the fun! Create 2nd level character with your Twitch name at dndbeyond.com, then join campaign ${config.dndbeyond.campaign} // !join`
             } else if (command === "!char" || command === "char" || command === "!character" || command === "character") {
                 message = "Update your characters details // !char ac=18 hp=20"
             } else if (command === "!play" || command === "play") {
