@@ -20,6 +20,11 @@ class _TwitchRPCommand {
             parsed["_"] = parsed["_"].slice(1);
         }
 
+        if (parsed["_"][0].startsWith("@")) {
+            parsed["--name"] = parsed["_"][0].substring(1);
+            parsed["_"] = parsed["_"].slice(1);
+        }
+
         return parsed;
     }
 

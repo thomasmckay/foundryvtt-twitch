@@ -19,11 +19,18 @@ class _TwitchCharacterCommand {
         /* eslint-disable no-undef */
         var parsed = Arg.parse({
             "--help": Boolean,
+            "--name": String,
+            "-n": "--name",
         }, {
             argv: args,
             permissive: true
         });
         /* eslint-enable no-undef */
+
+        if (parsed["_"][0].startsWith("@")) {
+            parsed["--name"] = parsed["_"][0].substring(1);
+            parsed["_"] = parsed["_"].slice(1);
+        }
 
         for (let i = 0; i < parsed["_"].length; i++) {
             let stat = parsed["_"][i].split("=");
@@ -73,8 +80,6 @@ class _TwitchCharacterCommand {
 
 
     async run(msg, params, args) {
-        var name, character, objects;
-
         try {
             args = this.parseArgs(args);
         } catch (e) {
@@ -86,18 +91,29 @@ class _TwitchCharacterCommand {
             return;
         }
 
-        let characterName = params["username"];
+        let characterName = args["--name"];
+        if (!characterName) {
+            characterName = params["username"];
+        }
+        let character = Twitch.getCharacter(characterName);
+        if (!character) {
+            character = Twitch.getCharacter(params["username"]);
+            if (!character) {
+                console.log("Character not found");
+                return;
+            }
+        }
+        let token = Twitch.getCharacterToken(characterName);
+        if (!token) {
+            console.log("roll: token for character not found: " + characterName);
+            return;
+        }
 
         if (!Twitch.checkPermission(params["username"], characterName, "character")) {
             console.log("DEBUG: 'character' permission denied");
             return;
         }
 
-        let token = Twitch.getCharacterToken(characterName);
-        if (!token) {
-            console.log("!character: character token for name not found: " + name);
-            return;
-        }
         await this.updateCharacter(token, args);
         character = Twitch.getCharacter(characterName);  // Get updated character
 
@@ -105,7 +121,6 @@ class _TwitchCharacterCommand {
         //    Twitch.setDnDBeyondUrl(character, args["dndbeyond"])
         //}
 
-        Twitch.addToBiography(character, "character", Twitch.sprintf("%s character updated", characterName));
         if (args["dndbeyond"] || args["_"].includes("dndbeyond")) {
             Twitch.socket.send(Twitch.sprintf("@%s %s", characterName,
                                               Twitch.getDnDBeyondUrl(characterName)));

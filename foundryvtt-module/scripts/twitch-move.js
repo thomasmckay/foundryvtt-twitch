@@ -55,12 +55,19 @@ class _TwitchMoveCommand {
             "-l": "--left",
             "-r": "--right",
             "-u": "--up",
-            "-d": "--down"
+            "-d": "--down",
+            "--name": String,
+            "-n": "--name"
         }, {
             argv: args,
             permissive: true
         });
         /* eslint-enable no-undef */
+
+        if (parsed["_"][0].startsWith("@")) {
+            parsed["--name"] = parsed["_"][0].substring(1);
+            parsed["_"] = parsed["_"].slice(1);
+        }
 
         return parsed;
     }
@@ -78,34 +85,38 @@ class _TwitchMoveCommand {
             return;
         }
 
-        let wasdRE = /^[wasd]+$/
-        let startIndex = 0;
-        let name = args["_"][0];
-        if (!name || wasdRE.test(name)) {
-            name = params["username"];
-        } else {
-            startIndex = 1;
-        }
-        if (!Twitch.checkPermission(params["username"], name, "move")) {
-            console.log("DEBUG: 'move' permission denied");
+        if (game.paused) {
+            console.log("move: Game paused, preventing movement");
             return;
         }
 
-        let character = Twitch.getCharacter(name);
+        let characterName = args["--name"];
+        if (!characterName) {
+            characterName = params["username"];
+        }
+        let character = Twitch.getCharacter(characterName);
         if (!character) {
-            console.log("arrow: character for name not found: " + name);
+            character = Twitch.getCharacter(params["username"]);
+            if (!character) {
+                console.log("Character not found");
+                return;
+            }
+        }
+        let token = Twitch.getCharacterToken(characterName);
+        if (!token) {
+            console.log("move: token for character not found: " + characterName);
             return;
         }
-        let token = Twitch.getCharacterToken(character.name);
-        if (token === undefined) {
-            console.log("move: token for name not found: " + name);
+
+        if (!Twitch.checkPermission(params["username"], characterName, "move")) {
+            console.log("DEBUG: 'move' permission denied");
             return;
         }
 
         let prevX = token.data.x,
             prevY = token.data.y;
 
-        for (let i = startIndex; i < args["_"].length; i++) {
+        for (let i = 0; i < args["_"].length; i++) {
             let deltaX = 0,
                 deltaY = 0;
 
@@ -137,8 +148,6 @@ class _TwitchMoveCommand {
         }
 
         Twitch.sendScenePan();
-
-        Twitch.addToBiography(character, "move", msg);
     }
 
     usage(detailed, lineSeparator = "\n") {

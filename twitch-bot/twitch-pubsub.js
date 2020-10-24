@@ -197,7 +197,7 @@ import HTTPServ from "http";
 
 
         getCommand(name) {
-            return this.commands[name];
+            return this.commands[name.toLowerCase()];
         }
 
 
@@ -325,12 +325,22 @@ import HTTPServ from "http";
     new Command(["character", "char", "c"]);
 
 
+    // !ddal
+    //
+    class DDALCommand extends Command {
+        run(user, args) {
+            return "D&D Adventuers League Season 10 - Rime of the Frostmaiden // https://media.wizards.com/2020/dnd/downloads/AL_PGv_10_2.pdf // https://media.wizards.com/2020/dnd/downloads/ALPG_S10_FAQ.pdf"
+        }
+    }
+    new DDALCommand(["ddal"]);
+
+
     // !dndbeyond
     //
     new Command(["dndbeyond", "dndb"]);
 
 
-    // !help
+    // !gencon
     //
     class GenConCommand extends Command {
         run(user, args) {
@@ -352,11 +362,12 @@ import HTTPServ from "http";
             } else {
                 command = "help";
             }
+            command = command.toLowerCase();
 
-            if (command === "!roll" || command === "roll") {
+            if (command === "!roll" || command === "roll" || command === "!r" || command === "r") {
                 message = "Roll the dice! // !roll d20 // !roll 2d20+4"
             } else if (command === "!join" || command === "join") {
-                message = `Join in the fun! Create 2nd level character with your Twitch name at dndbeyond.com, then join campaign ${config.dndbeyond.campaign} // !join`
+                message = `Join in the fun! Create 1st level character with your Twitch name at dndbeyond.com, then join campaign ${config.dndbeyond.campaign} // Character creation rules '!help ddal' // !join https://dndbeyond.com/profile/...`
             } else if (command === "!char" || command === "char" || command === "!character" || command === "character") {
                 message = "Update your characters details // !char ac=18 hp=20"
             } else if (command === "!play" || command === "play") {
@@ -369,8 +380,12 @@ import HTTPServ from "http";
                 message = "Draw arrow lines! WASD to location // !arrow wwee // !arrow ww aa ww"
             } else if (command === "!rp" || command === "rp") {
                 message = "In-character chat shown live! // !rp *raises pint glass* to us! // !rp *sits at table*<br>pie of the day?"
+            } else if (command === "!dndbeyond" || command === "dndbeyond" || command === "!dndb" || command === "dndb") {
+                message = "We use https://dndbeyond.com as the source-of-truth for characters and source material. '!help join' for more info // !dndbeyond https://dndbeyond.com/profile/..."
+            } else if (command === "!ddal" || command === "ddal") {
+                message = "D&D Adventuers League Season 10 - Rime of the Frostmaiden // https://media.wizards.com/2020/dnd/downloads/AL_PGv_10_2.pdf // https://media.wizards.com/2020/dnd/downloads/ALPG_S10_FAQ.pdf"
             } else {
-                message = "!join, !roll, !play, !char, !rp, !move, !arrow, !dndbeyond, !leave"
+                message = "!join, !roll, !play, !char, !rp, !move, !arrow, !dndbeyond, !ddal, !leave"
             }
 
             return message;

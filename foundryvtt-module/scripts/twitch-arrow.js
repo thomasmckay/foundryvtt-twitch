@@ -10,11 +10,18 @@ class _TwitchArrowCommand {
         /* eslint-disable no-undef */
         let parsed = Arg.parse({
             "--help": Boolean,
+            "--name": String,
+            "-n": "--name",
         }, {
             argv: args,
             permissive: true
         });
         /* eslint-enable no-undef */
+
+        if (parsed["_"][0].startsWith("@")) {
+            parsed["--name"] = parsed["_"][0].substring(1);
+            parsed["_"] = parsed["_"].slice(1);
+        }
 
         return parsed;
     }
@@ -49,7 +56,7 @@ class _TwitchArrowCommand {
     }
 
 
-    async createArrows(name, token, startIndex, args) {
+    async createArrows(name, token, args) {
         let user = Twitch.getUser(name);
         await this.clearArrows(this._arrows[name]);
         this._arrows[name] = [];
@@ -58,7 +65,7 @@ class _TwitchArrowCommand {
             prevY = token.data.y + canvas.grid.w / 2;
 
         let arrowDrawings = [];
-        for (let i = startIndex; i < args["_"].length; i++) {
+        for (let i = 0; i < args["_"].length; i++) {
             let deltaX = 0,
                 deltaY = 0;
 
@@ -108,33 +115,30 @@ class _TwitchArrowCommand {
             return;
         }
 
-        let wasdRE = /^[wasd]+$/
-        let startIndex = 0;
-        let name = args["_"][0];
-        if (!name || wasdRE.test(name)) {
-            name = params["username"];
-        } else {
-            startIndex = 1;
+        let characterName = args["--name"];
+        if (!characterName) {
+            characterName = params["username"];
         }
-        if (!Twitch.checkPermission(params["username"], name, "arrow")) {
+        let character = Twitch.getCharacter(characterName);
+        if (!character) {
+            character = Twitch.getCharacter(params["username"]);
+            if (!character) {
+                console.log("Character not found");
+                return;
+            }
+        }
+        let token = Twitch.getCharacterToken(characterName);
+        if (!token) {
+            console.log("arrow: token for character not found: " + characterName);
+            return;
+        }
+
+        if (!Twitch.checkPermission(params["username"], characterName, "arrow")) {
             console.log("DEBUG: 'arrow' permission denied");
             return;
         }
 
-        let character = Twitch.getCharacter(name);
-        if (!character) {
-            console.log("arrow: character for name not found: " + name);
-            return;
-        }
-        let token = Twitch.getCharacterToken(character.name);
-        if (token === undefined) {
-            console.log("arrow: token for name not found: " + name);
-            return;
-        }
-
-        await this.createArrows(name, token, startIndex, args);
-
-        Twitch.addToBiography(character, "arrow", msg);
+        await this.createArrows(params["username"], token, args);
     }
 
 
