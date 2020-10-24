@@ -74,6 +74,7 @@ class _TwitchJoinCommand {
         if (!token) {
             let startingLocation = this.getStartingLocation();
             const tokenData = {
+                name: character.name,
                 img: "/images/twitch/" + character.name + ".png",
                 x: startingLocation.x,
                 y: startingLocation.y,
@@ -86,9 +87,11 @@ class _TwitchJoinCommand {
                 brightSight: 1,
                 dimSight: 10,
                 displayBar1: true,
-                "bar1.attribute": "attributes.hp",
+                bar1: {attribute: "attributes.hp"},
             };
-            await canvas.tokens.dropActor(character, tokenData);
+	    // 0.6.6
+            // await canvas.tokens.dropActor(character, tokenData);
+	    await Token.create(tokenData);
             token = Twitch.getCharacterToken(character.name);
         }
 

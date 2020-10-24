@@ -6,6 +6,9 @@ curl -sL https://dl.yarnpkg.com/rpm/yarn.repo | sudo tee /etc/yum.repos.d/yarn.r
 sudo yum install -y yarn
 sudo yum install -y openssl-devel
 
+# To allow github
+eval "$(ssh-agent)"
+ssh-add ~/.ssh/github
 
 docker build -t quay.io/thomasmckay/roll20-twitch:latest .
 

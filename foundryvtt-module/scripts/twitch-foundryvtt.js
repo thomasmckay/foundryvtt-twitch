@@ -1,5 +1,6 @@
 /* global Twitch:true */
 
+
 Twitch.getCharacter = function(msg, params, args) {
     var characterName = args["--name"];
     if (!characterName) {
@@ -21,7 +22,12 @@ Twitch.getCharacter = function(msg, params, args) {
 
 Twitch.registerCommands();
 
-Twitch.socket = new WebSocket("ws://127.0.0.1:30001");
+let fvttserver = process.env.FVTTSERVER;
+if (!fvttserver) {
+    return -1;
+}
+
+Twitch.socket = new WebSocket("ws://" +  + ":30001");
 Twitch.socket.onopen = function(e) {
     console.log("################ onopen");
 };
