@@ -1,9 +1,3 @@
-/* exported TwitchJoinCommand */
-/* global BeyondImporter:true */
-/* global setDefaultTokenForCharacter:true */
-/* global Twitch:true */
-/* global TwitchAdminCommand:true */
-
 class _TwitchJoinCommand {
 
     constructor() {
@@ -21,14 +15,12 @@ class _TwitchJoinCommand {
 
 
     parseArgs(args) {
-        /* eslint-disable no-undef */
         var parsed = Arg.parse({
             "--help": Boolean,
         }, {
             argv: args,
             permissive: true
         });
-        /* eslint-enable no-undef */
 
         for (let i = 0; i < parsed["_"].length; i++) {
             let stat = parsed["_"][i].split("=");
@@ -59,17 +51,6 @@ class _TwitchJoinCommand {
             character = await character.update(characterUpdates);
         }
 
-        // Not useful since current stats are not explicitly embedded, they need to be calculated
-        // fs.readFile(config.foundryvtt.images + "/" + character.name + ".json", (err, data) => {
-        //     if (!err) {
-        //         try {
-        //             let dndbeyond = JSON.parse(data);
-        //         } catch (e) {
-        //             // empty
-        //         }
-        //     }
-        // });
-
         let token = Twitch.getCharacterToken(character.name);
         if (!token) {
             let startingLocation = this.getStartingLocation();
@@ -89,8 +70,6 @@ class _TwitchJoinCommand {
                 displayBar1: true,
                 bar1: {attribute: "attributes.hp"},
             };
-	    // 0.6.6
-            // await canvas.tokens.dropActor(character, tokenData);
 	    await Token.create(tokenData);
             token = Twitch.getCharacterToken(character.name);
         }
@@ -99,6 +78,20 @@ class _TwitchJoinCommand {
         // BUG: a combat tracker encounter must exist
         if (!game.combat.getCombatantByToken(token.id)) {
             await game.combat.createCombatant({tokenId: token.id, hidden: false});
+        }
+
+        // TODO: refactor this to share w/ twitch-dndbeyond.js
+        if (args["_"].length == 1 && (
+                args["_"][0].startsWith("https://www.dndbeyond.com/") ||
+                args["_"][0].startsWith("https://dndbeyond.com/") ||
+                args["_"][0].startsWith("https://ddb.ac/") ||
+                args["_"][0].startsWith("dndbeyond.com/") ||
+                args["_"][0].startsWith("www.dndbeyond.com/") ||
+                args["_"][0].startsWith("ddb.ac/")
+        )) {
+            if (token.data.actorLink && token.actor.data.name === character.name) {
+                await Twitch.setDnDBeyondUrl(token.actor, args["_"][0]);
+            }
         }
     }
 

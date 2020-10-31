@@ -33,6 +33,11 @@ class _TwitchRollCommand {
             return arg;
         }).flat();
 
+        if (parsed["_"][0].startsWith("@")) {
+            parsed["--name"] = parsed["_"][0].substring(1);
+            parsed["_"] = parsed["_"].slice(1);
+        }
+
         return parsed;
     }
 
@@ -66,12 +71,15 @@ class _TwitchRollCommand {
         }
         let character = Twitch.getCharacter(characterName);
         if (!character) {
-            console.log("Character not found");
-            return;
+            character = Twitch.getCharacter(params["username"]);
+            if (!character) {
+                console.log("Character not found");
+                return;
+            }
         }
         let token = Twitch.getCharacterToken(characterName);
         if (!token) {
-            console.log("Character token not found");
+            console.log("roll: token for character not found: " + characterName);
             return;
         }
 
@@ -87,7 +95,6 @@ class _TwitchRollCommand {
 
         if (words.length > 0) {
             let arg = words[0].toLowerCase();
-            console.log("????? " + arg);
             if (arg === "initiative" || arg === "init") {
                 let combatant = game.combat.data.combatants.find(c => c.tokenId === token.id);
                 if (combatant) {
@@ -95,7 +102,13 @@ class _TwitchRollCommand {
                 }
             }
         }
-        Twitch.socket.send(Twitch.sprintf("@%s rolled (%s) %s = %s", character.name, rolled.formula, rolled.result, rolled.total));
+
+        var name = params["username"];
+        if (characterName !== params["username"]) {
+            name = Twitch.sprintf("%s(%s)", name, characterName);
+        }
+        Twitch.socket.send(Twitch.sprintf("@%s rolled (%s) %s = %s", name, rolled.formula, rolled.result, rolled.total));
+
         let message;
         if (words.length > 0) {
             message = Twitch.sprintf("%s = %s<br> %s", rolled.formula, rolled.result,
@@ -103,8 +116,7 @@ class _TwitchRollCommand {
         } else {
             message = Twitch.sprintf("%s = %s", rolled.formula, rolled.result);
         }
-        Twitch.writeEmote(character.name, message);
-        Twitch.addToBiography(character, "roll", message);
+        Twitch.writeEmote(characterName, message);
     }
 
     usage (detailed, lineSeparator = "\n") {

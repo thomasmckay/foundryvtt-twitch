@@ -1,5 +1,6 @@
 twitch-bot/config/*.js
 **/build
 **/*.retry
-hexchat/config/*.js
+hexchat/config.js
 **/node_modules
+twitch.html

@@ -253,19 +253,17 @@ class _Twitch {
 
 
     getDnDBeyondUrl(tokenName) {
+        let vtta;
         let token = Twitch.getCharacterToken(tokenName);
         if (!token) {
-            return "";
+            return "No DnDBeyond character set. See !help dndbeyond";
         }
-        let biography = token.actor.data.data.details.biography.value;
-        if (!biography) {
-            return "";
+        if (token.actor.data.flags.vtta) {
+            vtta = token.actor.data.flags.vtta;
+        } else {
+            vtta = token.actor.data.data.flags.vtta;
         }
-        let url = Twitch.htmlToText(biography).split("\n")[0];
-        if (!url.startsWith("https://")) {
-            return "No dndbeyond.com linked";
-        }
-        return url;
+        return vtta.dndbeyond.url;
     }
 
 
@@ -276,12 +274,18 @@ class _Twitch {
         if (!url.startsWith("https://www.dndbeyond.com/") && !url.startsWith("https://dndbeyond.com/") && !url.startsWith("https://ddb.ac/")) {
             return;
         }
-        let biography = character.data.data.details.biography.value;
-        if (!biography) {
-            biography = "";
+
+        let vtta = character.data.flags.vtta;
+        if (!vtta) {
+            vtta = {
+                dndbeyond: {
+                    url: url
+                }
+            };
+            await character.update({"data.flags.vtta": vtta});
+        } else {
+            await character.update({"data.flags.vtta.dndbeyond.url": url});
         }
-        let urlLink = this.sprintf("<p><a href=\"%s\">%s</a></p>", url, url);
-        await character.update({"data.details.biography.value": urlLink + "<br>" + biography});
     }
 
 

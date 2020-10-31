@@ -10,27 +10,11 @@ sudo yum install -y openssl-devel
 eval "$(ssh-agent)"
 ssh-add ~/.ssh/github
 
-docker build -t quay.io/thomasmckay/roll20-twitch:latest .
 
-docker run -it --rm -e "DEBUG=nightmare*,electron*" -v `pwd`/config:/roll20-twitch/config quay.io/thomasmcy/roll20-twitch:latest start
-
-!twitch roll d20
 
 https://docs.tmijs.org
 
 docker build -t roll20-twitch:debug -f Dockerfile.debug . && docker run -it --rm -e "DEBUG=nightmare*,electron*" -v `pwd`/config:/roll20-twitch/config roll20-twitch:debug start
-
-## Roll20 Script
-
-The game script must be named 'build.js'
-
-make GAME=$game SCRIPT=$script
-
-
-node build/build.js
-
-cd roll20-scripts
-yarn eslint twitch*.js
 
 
 
@@ -61,7 +45,7 @@ CSS
 /home/thomasmckay/programs/fvtt/fvtt-0.6.0/resources/app/public/css/style.css
 
 #sidebar / width: 500px;
-#chat-log .message / font-size: 24px;
+#chat-message / font-size: 24px;
 
 
 NOTES
