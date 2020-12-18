@@ -9,6 +9,7 @@ FOUNDRYVTT_FILES = \
 	twitch-move.js \
 	twitch-ping.js \
 	twitch-play.js \
+	twitch-redeem.js \
 	twitch-roll.js \
 	twitch-rp.js \
 	arg.js \
@@ -22,6 +23,7 @@ build: $(BUILD_DIR)/build.js
 install: build
 	cp build/build.js ~/.local/share/FoundryVTT/Data/modules/foundryvtt-twitch/build.js
 	cp module.json ~/.local/share/FoundryVTT/Data/modules/foundryvtt-twitch/module.json
+	cp styles/foundryvtt-twitch.css ~/.local/share/FoundryVTT/Data/modules/foundryvtt-twitch/foundryvtt-twitch.css
 
 $(BUILD_DIR)/build.js: $(addprefix scripts/, $(FOUNDRYVTT_FILES))
 	mkdir -p $(@D)

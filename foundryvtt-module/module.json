@@ -6,6 +6,7 @@
     "author": "thomasmckay",
     "systems": ["dnd5e"],
     "scripts": ["build.js"],
+    "styles": ["foundryvtt-twitch.css"],
     "socket": true,
     "minimumCoreVersion": "0.5.1",
     "url": "https://github.com/thomasmckay/foundryvtt-twitch",

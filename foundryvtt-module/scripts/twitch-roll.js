@@ -41,9 +41,46 @@ class _TwitchRollCommand {
         return parsed;
     }
 
+    // To prevent abuse:
+    // + limit nested to 4
+    // + limit terms to 5
+    // + limit dice faces to 10000
+    // + limit dice sides to 100
+    validateRoll(depth, terms) {
+        if (depth > 4) {
+            return false;
+        }
+        let count = 0;
+        let valid = terms.every((term) => {
+            if (term instanceof Die) {
+                count = count + 1;
+                if (term.number > 100) {
+                    return false;
+                }
+                if (term.faces > 10000) {
+                    return false;
+                }
+            } else if (term instanceof Roll) {
+                if (!validateRoll(depth + 1, term.terms)) {
+                    return false;
+                }
+            }
+            if (count > 5) {
+                return false;
+            }
+            return true;
+        });
+
+        return valid;
+    }
+
 
     roll(character, dice) {
         let roll = new Roll(dice);
+        if (!this.validateRoll(1, roll.terms)) {
+            console.log(`DEBUG: dice validation failed ${dice}`);
+            return undefined;
+        }
         let user = Twitch.getUser(character.name);
         roll.toMessage({
             user: user.id
@@ -54,6 +91,7 @@ class _TwitchRollCommand {
 
 
     async run (msg, params, args) {
+        console.log("AAA");
         try {
             args = this.parseArgs(args);
         } catch (e) {
@@ -92,6 +130,10 @@ class _TwitchRollCommand {
         var words = args["_"].slice(1);
 
         let rolled = this.roll(character, dice);
+        if (!rolled) {
+            console.log(`DEBUG: 'roll' bad dice ${dice}`);
+            return;
+        }
 
         if (words.length > 0) {
             let arg = words[0].toLowerCase();
