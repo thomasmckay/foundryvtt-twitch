@@ -58,7 +58,8 @@ class _TwitchLeaveCommand {
             await token.update({
                 name: monster
             });
-            await token.toggleEffect("icons/svg/frozen.svg");
+            const effect = CONFIG.statusEffects.find(e => e.icon === "icons/svg/frozen.svg");
+            await token.toggleEffect(effect, {active: true});
         } else {
             canvas.scene.deleteEmbeddedEntity('Token', token.id)
         }

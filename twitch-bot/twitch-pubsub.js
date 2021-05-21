@@ -1,7 +1,8 @@
 
-import TwitchClient from "twitch";
-import PubSubClient from "twitch-pubsub-client";
-import ChatClient from 'twitch-chat-client';
+import { ApiClient } from "twitch";
+import { PubSubClient } from "twitch-pubsub-client";
+import { RefreshableAuthProvider, StaticAuthProvider } from 'twitch-auth';
+import { ChatClient } from 'twitch-chat-client';
 
 import request from "request";
 import { config } from "./config/config.js";
@@ -56,21 +57,20 @@ import HTTPServ from "http";
         ws.send('something');
     });
 
-
-
+    // Config values
     const clientId = config.twitch.clientid;
     const clientSecret = config.twitch.clientsecret;
 
     // Bot
-    let tokenData = {
+    const botTokenData = {
 	"accessToken": config.twitch.bot.access_token,
 	"refreshToken": config.twitch.bot.refresh_token,
 	"expiryTimestamp": config.twitch.bot.expires_in
     }
-    const twitchBotClient = TwitchClient.withCredentials(clientId, tokenData.accessToken, undefined, {
+    const twitchBotClient = ApiClient.withCredentials(clientId, botTokenData.accessToken, undefined, {
         clientSecret,
-        refreshToken: tokenData.refreshToken,
-        expiry: tokenData.expiryTimestamp === null ? null : new Date(tokenData.expiryTimestamp),
+        refreshToken: botTokenData.refreshToken,
+        expiry: botTokenData.expiryTimestamp === null ? null : new Date(botTokenData.expiryTimestamp),
         onRefresh: async ({ accessToken, refreshToken, expiryDate }) => {
             const newTokenData = {
                 accessToken,
@@ -90,16 +90,18 @@ import HTTPServ from "http";
         }
     });
 
+
     // Channel
-    tokenData = {
-	"accessToken": config.twitch.channel.access_token,
-	"refreshToken": config.twitch.channel.refresh_token,
-	"expiryTimestamp": config.twitch.channel.expires_in
+    const channelTokenData = {
+       "accessToken": config.twitch.channel.access_token,
+       "refreshToken": config.twitch.channel.refresh_token,
+       "expiryTimestamp": config.twitch.channel.expires_in
     }
-    const twitchChannelClient = TwitchClient.withCredentials(clientId, tokenData.accessToken, undefined, {
+
+    const twitchChannelClient = ApiClient.withCredentials(clientId, channelTokenData.accessToken, undefined, {
         clientSecret,
-        refreshToken: tokenData.refreshToken,
-        expiry: tokenData.expiryTimestamp === null ? null : new Date(tokenData.expiryTimestamp),
+        refreshToken: channelTokenData.refreshToken,
+        expiry: channelTokenData.expiryTimestamp === null ? null : new Date(channelTokenData.expiryTimestamp),
         onRefresh: async ({ accessToken, refreshToken, expiryDate }) => {
             const newTokenData = {
                 accessToken,
@@ -119,10 +121,40 @@ import HTTPServ from "http";
         }
     });
 
-    const chatClient = await ChatClient.forTwitchClient(twitchBotClient, { channels: ['pintandpie'] });
-    await chatClient.connect();
+    const auth = new RefreshableAuthProvider(
+        new StaticAuthProvider(clientId, channelTokenData.accessToken),
+        {
+            clientSecret,
+            refreshToken: channelTokenData.refreshToken,
+            expiry: channelTokenData.expiryTimestamp === null ? null : new Date(channelTokenData.expiryTimestamp),
+            onRefresh: async ({ accessToken, refreshToken, expiryDate }) => {
+                const newTokenData = {
+                    accessToken,
+                    refreshToken,
+                    expiryTimestamp: expiryDate === null ? null : expiryDate.getTime()
+                };
+		console.log(`CHANNEL: ${JSON.stringify(newTokenData, null, 4)}`);
+		config.twitch.bot.access_token = accessToken;
+		config.twitch.bot.refresh_token = refreshToken;
+		config.twitch.bot.expires_in = expiryDate === null ? null : expiryDate.getTime();
+		fs.writeFile("config/config.js", "export const config = " + JSON.stringify(config, null, 4), (err) => {
+                    if (err) {
+			console.log(`Failed to save config: ${err}`);
+                    }
+		});
+            }
+        }
+    );
 
-    chatClient.onPrivmsg((channel, user, message) => {
+    const chatClient = new ChatClient(auth, { channels: ['pintandpie'] });
+    try {
+	await chatClient.connect();
+    } catch(e) {
+	console.log(`Failed to connect to ChatClient: ${e}`);
+	return;
+    }
+
+    chatClient.onMessage((channel, user, message) => {
         foundryVTT.processMessage(channel, user, message);
     });
 
@@ -136,6 +168,7 @@ import HTTPServ from "http";
         chatClient.say(channel, `Thanks to ${subInfo.gifter} for gifting a subscription to ${user}!`);
     });
 
+
     const channel = await twitchBotClient.helix.users.getUserByName(config.twitch.channels[0]);
 
     const pubSubClient = new PubSubClient();
@@ -146,13 +179,22 @@ import HTTPServ from "http";
         const color = message._data.data.redemption.reward.background_color.substring(1);
         let text = "";
         if (message._data.data.redemption.reward.title.startsWith("Heal")) {
-            text = "Healed!";
+            text = "heal";
         } else if (message._data.data.redemption.reward.title.startsWith("Give Advantage")) {
-            text = "Advantage!";
+            text = "advantage";
+        } else if (message._data.data.redemption.reward.title.startsWith("Hear Rumor")) {
+            text = "rumor";
         }
-        let name = message._data.data.redemption.user_input.split(" ")[0];
-        let user = message._data.data.redemption.user;
-        broadcast(`!twitch [#####,username=${user.display_name}] ping ${name} color=${color} text=${text}`);
+        let words = ["rumor", "Hear Rumor"];
+        if (message._data.data.redemption.user_input) {
+	    words = message._data.data.redemption.user_input.split(" ");
+        }
+	if (words.length > 0) {
+            let name = words[0];
+            let user = message._data.data.redemption.user;
+	    let description = words.slice(1);
+            broadcast(`!twitch [#####,username=${user.display_name}] redeem name=${name} color=${color} text=${text} ${description.join(" ")}`);
+	}
     });
 
     /*
@@ -329,7 +371,7 @@ import HTTPServ from "http";
     //
     class DDALCommand extends Command {
         run(user, args) {
-            return "D&D Adventuers League Season 10 - Rime of the Frostmaiden // https://media.wizards.com/2020/dnd/downloads/AL_PGv_10_2.pdf // https://media.wizards.com/2020/dnd/downloads/ALPG_S10_FAQ.pdf"
+            return "D&D Adventuers League Season 10 - Rime of the Frostmaiden // https://media.wizards.com/2020/dnd/downloads/AL_PGv10_3.pdf // https://media.wizards.com/2020/dnd/downloads/ALPG_S10_FAQ.pdf // http://media.wizards.com/2020/dnd/downloads/dnd_tcoe_alguidance.pdf"
         }
     }
     new DDALCommand(["ddal"]);

@@ -20,6 +20,7 @@ class _TwitchPingCommand {
             if (arg.length == 2) {
                 parsed["--" + arg[0].toLowerCase()] = arg[1];
             }
+	    console.log(`############ ${arg[0]} = ${arg[1]}`);
         }
 
         return parsed;
@@ -61,25 +62,29 @@ class _TwitchPingCommand {
             color = 0x58FF33;
         }
 
-        window.Azzu.Pings.performText({
-            x: token.x + canvas.grid.w / 2,
-            y: token.y + canvas.grid.w / 2
-        }, text, color);
+        canvas.controls.pointer.ping({
+	    position: {
+		x: token.x + canvas.grid.w / 2,
+		y: token.y + canvas.grid.w / 2
+            }
+	});
 
         if (!Twitch.checkPermission(params["username"], targetName, "ping")) {
             console.log("DEBUG: 'ping' permission denied");
             return;
         }
 
-        let message = `@${params["username"]} spent platinum pieces: ${text}`;
-        await ChatMessage.create({
-            speaker: ChatMessage.getSpeaker({ token: token }),
-            user: user,
-            content: message,
-            type: CONST.CHAT_MESSAGE_TYPES.EMOTE
-        }, {
-            chatBubble: false
-        });
+	if (text !== "") {
+            let message = `@${params["username"]} spent platinum pieces: ${text}`;
+            await ChatMessage.create({
+		speaker: ChatMessage.getSpeaker({ token: token }),
+		user: user,
+		content: message,
+		type: CONST.CHAT_MESSAGE_TYPES.EMOTE
+            }, {
+		chatBubble: false
+            });
+	}
     }
 
 

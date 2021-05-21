@@ -18,6 +18,7 @@ class _Twitch {
         this.TWITCH_COMMANDS["leave"] = new _TwitchLeaveCommand();
         this.TWITCH_COMMANDS["move"] = new _TwitchMoveCommand();
         this.TWITCH_COMMANDS["ping"] = new _TwitchPingCommand();
+        this.TWITCH_COMMANDS["redeem"] = new _TwitchRedeemCommand();
         this.TWITCH_COMMANDS["play"] = new _TwitchPlayCommand();
         this.TWITCH_COMMANDS["roll"] = new _TwitchRollCommand();
         this.TWITCH_COMMANDS["rp"] = new _TwitchRPCommand();
@@ -258,10 +259,12 @@ class _Twitch {
         if (!token) {
             return "No DnDBeyond character set. See !help dndbeyond";
         }
-        if (token.actor.data.flags.vtta) {
+        if (token.actor.data.flags && token.actor.data.flags.vtta) {
             vtta = token.actor.data.flags.vtta;
-        } else {
+        } else if (token.actor.data.data.flags && token.actor.data.data.flags.vtta) {
             vtta = token.actor.data.data.flags.vtta;
+        } else {
+            return "Use !dndb to set your character's URL";
         }
         return vtta.dndbeyond.url;
     }

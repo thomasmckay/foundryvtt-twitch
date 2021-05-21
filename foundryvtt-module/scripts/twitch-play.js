@@ -36,11 +36,12 @@ class _TwitchPlayCommand {
             return false;
         }
 
-        if (!token.data.effects.includes("icons/svg/frozen.svg")) {
+        if (!token.data.actorData.effects.map(e => e.icon).includes("icons/svg/frozen.svg")) {
             console.log("!play: token does is not 'frozen': " + name);
             return false;
         }
-        await token.toggleEffect("icons/svg/frozen.svg");
+        const effect = CONFIG.statusEffects.find(e => e.icon === "icons/svg/frozen.svg");
+        await token.toggleEffect(effect, {active: false});
 
         await token.update({
             name: character.name,

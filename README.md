@@ -45,7 +45,12 @@ CSS
 /home/thomasmckay/programs/fvtt/fvtt-0.6.0/resources/app/public/css/style.css
 
 #sidebar / width: 500px;
-#chat-message / font-size: 24px;
+.chat-message / font-size: 24px;
+#chat-form {
+  height: 50px;
+  flex: 0 0 50px;
+  margin: 0 6px 6px;
+}
 
 
 NOTES
