@@ -5,7 +5,7 @@ class _TwitchJoinCommand {
             let players = html.find(".player");
             for (let player of players) {
                 player = $(player);
-                let user = game.users.entities.find(u => u.id === player.data("user-id"));
+                let user = game.users.contents.find(u => u.id === player.data("user-id"));
                 if (user) {
                     player.find(".player-active").css("background", user.data.color);
                 }
@@ -97,7 +97,7 @@ class _TwitchJoinCommand {
 
 
     moveToStartingLocation(character) {
-        let doorCharacter = game.actors.entities.find(actor => { return actor.name === "Door"; });
+        let doorCharacter = game.actors.contents.find(actor => { return actor.name === "Door"; });
         if (!doorCharacter) {
             console.log("ERROR: 'Door' character not found");
             return false;
@@ -113,7 +113,7 @@ class _TwitchJoinCommand {
 
 
     getStartingLocation() {
-        let doorCharacter = game.actors.entities.find(actor => { return actor.name === "Door"; });
+        let doorCharacter = game.actors.contents.find(actor => { return actor.name === "Door"; });
         if (!doorCharacter) {
             console.log("ERROR: 'Door' character not found");
             return false;
@@ -149,13 +149,13 @@ class _TwitchJoinCommand {
         }
 
         // Create user
-        let twitchUser = game.users.entities.find(t => t.name === characterName);
+        let twitchUser = game.users.contents.find(t => t.name === characterName);
         if (!twitchUser) {
             await User.create({
                 name: characterName,
                 role: CONST.USER_ROLES.PLAYER,
             });
-            twitchUser = game.users.entities.find(t => t.name === characterName);
+            twitchUser = game.users.contents.find(t => t.name === characterName);
         }
 
         character = Twitch.getCharacter(characterName);

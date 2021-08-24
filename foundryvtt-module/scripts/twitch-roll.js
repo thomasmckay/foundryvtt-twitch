@@ -42,10 +42,10 @@ class _TwitchRollCommand {
     }
 
 
-    roll(character, dice) {
+    async roll(character, dice) {
         let roll = new Roll(dice);
         let user = Twitch.getUser(character.name);
-        roll.toMessage({
+        await roll.toMessage({
             user: user.id
         });
 
@@ -91,14 +91,14 @@ class _TwitchRollCommand {
         var dice = args["_"][0];
         var words = args["_"].slice(1);
 
-        let rolled = this.roll(character, dice);
+        let rolled = await this.roll(character, dice);
 
         if (words.length > 0) {
             let arg = words[0].toLowerCase();
             if (arg === "initiative" || arg === "init") {
-                let combatant = game.combat.data.combatants.find(c => c.tokenId === token.id);
+                let combatant = game.combat.data.combatants.find(c => c.token.id === token.id);
                 if (combatant) {
-                    await game.combat.updateCombatant({_id: combatant._id, initiative: rolled.total});
+                    await game.combat.updateCombatant({_id: combatant.id, initiative: rolled.total});
                 }
             }
         }

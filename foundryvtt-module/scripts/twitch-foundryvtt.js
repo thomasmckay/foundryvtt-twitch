@@ -11,7 +11,7 @@ Twitch.getCharacter = function(msg, params, args) {
     if (!characterName) {
         characterName = "None";
     }
-    character = game.actors.entities.find(actor => {
+    character = game.actors.contents.find(actor => {
         console.log(actor.name);
         return actor.name.toLowerCase().startsWith(characterName.toLowerCase());
     });

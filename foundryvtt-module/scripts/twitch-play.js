@@ -6,7 +6,7 @@ class _TwitchPlayCommand {
             let players = html.find(".player");
             for (let player of players) {
                 player = $(player);
-                let user = game.users.entities.find(u => u.id === player.data("user-id"));
+                let user = game.users.contents.find(u => u.id === player.data("user-id"));
                 if (user) {
                     player.find(".player-active").css("background", user.data.color);
                 }
@@ -92,13 +92,13 @@ class _TwitchPlayCommand {
         }
 
         // Create user
-        let twitchUser = game.users.entities.find(t => t.name === characterName);
+        let twitchUser = game.users.contents.find(t => t.name === characterName);
         if (!twitchUser) {
             await User.create({
                 name: characterName,
                 role: CONST.USER_ROLES.PLAYER,
             });
-            twitchUser = game.users.entities.find(t => t.name === characterName);
+            twitchUser = game.users.contents.find(t => t.name === characterName);
         }
 
         character = Twitch.getCharacter(characterName);

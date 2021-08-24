@@ -72,7 +72,7 @@ var _FoundryVTTJoinCommand = {
 
 
     saveDndbeyond: function(link, userstate) {
-        var campaign = "https://ddb.ac/campaigns/join/5507601294619987";
+        var campaign = "https://ddb.ac/campaigns/join/13728353864615861";
 
         if (!link.startsWith("https://www.dndbeyond.com/profile/")) {
             //client.say(config.twitch.channels[0], "@" + userstate["display-name"] +

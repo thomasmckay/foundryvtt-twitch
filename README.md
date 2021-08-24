@@ -47,6 +47,12 @@ CSS
 #sidebar / width: 500px;
 #chat-message / font-size: 24px;
 
+#chat-form {
+  height: 40px;
+  flex: 0 0 40px;
+  margin: 0 6px 6px;
+}
+
 
 NOTES
 

@@ -73,7 +73,7 @@ class _TwitchPingCommand {
 
         let message = `@${params["username"]} spent platinum pieces: ${text}`;
         await ChatMessage.create({
-            speaker: ChatMessage.getSpeaker({ token: token }),
+            speaker: ChatMessage.getSpeaker({ token: token.document }),
             user: user,
             content: message,
             type: CONST.CHAT_MESSAGE_TYPES.EMOTE

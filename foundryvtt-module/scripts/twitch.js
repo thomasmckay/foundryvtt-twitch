@@ -156,7 +156,7 @@ class _Twitch {
         for (let i = 0; i < canvasTokens.length; i++) {
             let canvasToken = canvasTokens[i];
 
-            let actor = game.actors.entities.find(actor => {
+            let actor = game.actors.contents.find(actor => {
                 return actor.id === canvasToken.actor.id;
             });
 
@@ -234,7 +234,7 @@ class _Twitch {
 
 
     getCharacter(characterName) {
-        let character = game.actors.entities.find(actor => {
+        let character = game.actors.contents.find(actor => {
             return actor.name.toLowerCase().startsWith(characterName.toLowerCase());
         });
 
@@ -243,7 +243,7 @@ class _Twitch {
 
 
     getUser(name) {
-        return game.users.entities.find(u => u.name.toLowerCase() === name.toLowerCase());
+        return game.users.contents.find(u => u.name.toLowerCase() === name.toLowerCase());
     }
 
 
@@ -354,7 +354,7 @@ class _Twitch {
             characterName = userName;
         }
 
-        let twitchCharacter = game.actors.entities.find(actor => { return actor.name === "Twitch"; });
+        let twitchCharacter = game.actors.contents.find(actor => { return actor.name === "Twitch"; });
         if (!twitchCharacter) {
             console.log("ERROR: 'Twitch' character not found");
             return false;

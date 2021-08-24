@@ -6,7 +6,7 @@ class _TwitchCharacterCommand {
             let players = html.find(".player");
             for (let player of players) {
                 player = $(player);
-                let user = game.users.entities.find(u => u.id === player.data("user-id"));
+                let user = game.users.contents.find(u => u.id === player.data("user-id"));
                 if (user) {
                     player.find(".player-active").css("background", user.data.color);
                 }
