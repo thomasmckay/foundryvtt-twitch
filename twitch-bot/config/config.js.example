@@ -70,6 +70,9 @@ export const config = {
             "expires_in": 1591849496736
         }
     },
+    "discord": {
+        "invite": "https://discord.gg/..."
+    },
     dndbeyond: {
         // In browser, visit a character page with Chrome DevTools open. Next, right click
         // on request in the "Network" tab, then Copy -> Copy as curl. Paste somewhere and

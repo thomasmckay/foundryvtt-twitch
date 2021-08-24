@@ -335,6 +335,16 @@ import HTTPServ from "http";
     new DDALCommand(["ddal"]);
 
 
+    // !discord
+    //
+    class DiscordCommand extends Command {
+        run(user, args) {
+            return `Join our discord community at ${config.discord.invite}`
+        }
+    }
+    new DiscordCommand(["discord"]);
+
+
     // !dndbeyond
     //
     new Command(["dndbeyond", "dndb"]);
@@ -380,12 +390,14 @@ import HTTPServ from "http";
                 message = "Draw arrow lines! WASD to location // !arrow wwee // !arrow ww aa ww"
             } else if (command === "!rp" || command === "rp") {
                 message = "In-character chat shown live! // !rp *raises pint glass* to us! // !rp *sits at table*<br>pie of the day?"
-            } else if (command === "!dndbeyond" || command === "dndbeyond" || command === "!dndb" || command === "dndb") {
+            } else if (command === "!discord" || command === "discord") {
+                message = `Join our discord community at ${config.discord.invite}`
+            } else if (command === "!dndbeyond" || command === "dndbeyond" || command === "!ddb" || command === "ddb") {
                 message = "We use https://dndbeyond.com as the source-of-truth for characters and source material. '!help join' for more info // !dndbeyond https://dndbeyond.com/profile/..."
             } else if (command === "!ddal" || command === "ddal") {
                 message = "D&D Adventuers League Season 10 - Rime of the Frostmaiden // https://media.wizards.com/2020/dnd/downloads/AL_PGv_10_2.pdf // https://media.wizards.com/2020/dnd/downloads/ALPG_S10_FAQ.pdf"
             } else {
-                message = "!join, !roll, !play, !char, !rp, !move, !arrow, !dndbeyond, !ddal, !leave"
+                message = "!join, !roll, !play, !char, !rp, !move, !arrow, !dndbeyond, !discord, !ddal, !leave"
             }
 
             return message;
