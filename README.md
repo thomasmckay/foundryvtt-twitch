@@ -1,3 +1,7 @@
+A few years back I started to poke around twitch.tv and streaming. I'm not naturally a speaker or extroverted person but the platform itself, and the business and paths to success on it, piqued my curiosity. I have always enjoyed the storytelling that comes along with D&D so I thought it would be fun to have the viewers play via chat with the streamer (me, in this case). To that end, I put together some software that allowed just that! (Pardon the organic and non-production quality code, it grew organically.)
+
+tl;dr There is a twitch bot that connects to twitch's pub/sub and then to a virtual tabletop simulator. This allows twitch chat viewers to enter textual commands (eg. "!roll d20+2") and get the results back in chat directly from the VTT (eg. "you rolled 17 (15+2)"). The VTT is very extensible, which let me be successful with this project.
+
 # Lightsail
 
 curl -sL https://rpm.nodesource.com/setup_14.x | sudo bash -
